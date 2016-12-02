@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="urn:com:servandserv:bbbot"
+	xmlns:core="urn:com:servandserv:bbbot:core"
+	targetNamespace="urn:com:servandserv:bbbot">
+	
+	<xsd:import namespace="urn:com:servandserv:bbbot:core" schemaLocation="core.xsd" />
+	
+    <xsd:element name="Webhook">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="id" type="xsd:long" />
+                <xsd:element name="context" type="core:contextType" />
+                <xsd:element ref="Chat" minOccurs="0" />
+                <xsd:element ref="Message" minOccurs="0" />
+                <xsd:element ref="Command" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Messages">
+        <xsd:complexType>
+            <xsd:element ref="Message" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Message">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="id" type="xsd:long" />
+                <xsd:element name="dt" type="core:timestamp" />
+                <xsd:element name="text" type="xsd:string" />
+                <xsd:element ref="User" minOccurs="0" />
+                <xsd:element ref="Contact" minOccurs="0" />
+                <xsd:element ref="Location" minOccurs="0" />
+                <xsd:element ref="Venue" minOccurs="0" />
+                <xsd:element ref="Link" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Command">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="name" type="xsd:string" minOccurs="0" />
+                <xsd:element name="alias" type="xsd:string" minOccurs="0" />
+                <xsd:element name="arguments" type="xsd:string" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Chats">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="Chat" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Chat">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="id" type="xsd:long" />
+	            <xsd:element name="context" type="core:contextType" />
+	            <xsd:element name="type" type="xsd:string" fixed="private" />
+	            <xsd:element ref="User" minOccurs="0" />
+	            <xsd:element ref="Location" minOccurs="0" maxOccurs="unbounded" />
+	            <xsd:element ref="Contact" minOccurs="0" maxOccurs="unbounded" />
+	            <xsd:element ref="Feed" minOccurs="0" maxOccurs="unbounded" />
+	            <xsd:element ref="Command" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="User">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="id" type="xsd:long" />
+	            <xsd:element name="firstName" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="lastName" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="middleName" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="nickname" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="gender" type="core:genderType" minOccurs="0" />
+	            <xsd:element name="locale" type="xsd:language" minOccurs="0" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Location">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="latitude" type="xsd:double" />
+	            <xsd:element name="longitude" type="xsd:double" />
+	            <xsd:element name="elevation" type="xsd:double" default="500.0" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Venue">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element ref="Location" />
+	            <xsd:element name="title" type="xsd:string" />
+	            <xsd:element name="address" type="xsd:string" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Contacts">
+	    <xsd:complexType>
+	        <xsd:element ref="Contact" minOccurs="0" maxOccurs="unbounded" />
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Contact">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="phoneNumber" type="core:phoneType" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Link">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="href" type="xsd:string" />
+	            <xsd:element name="alt" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="content" type="core:contentType" default="text/html" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Feed">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="name" type="xsd:string" />
+	            <xsd:element name="status" type="xsd:boolean" default="0" />
+	            <xsd:element name="last" type="core:dateTime" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+    <!--
+    <xsd:element name="Events">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="Event" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Event">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="chatId" type="xsd:integer" />
+                <xsd:element name="command" type="xsd:string" />
+                <xsd:element name="arguments" type="xsd:string" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    -->
+</xsd:schema>

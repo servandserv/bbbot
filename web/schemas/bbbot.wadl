@@ -1,0 +1,31 @@
+<?xml version="1.0"?> 
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://wadl.dev.java.net/2009/02 wadl.xsd" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:bbbot="urn:com:servandserv:bbbot"
+    xmlns="http://wadl.dev.java.net/2009/02"> 
+    
+    <grammars> 
+        <include href="bbbot.xsd" />
+    </grammars>
+
+    <resources base="/">
+        <resource path="messages.php">
+            <method name="POST" id="com:servandserv:BBBot:Application:UseCases:MessagesSend">
+                <request>
+                    <representation mediaType="application/xml" element="bbbot:Messages" />
+                    <representation mediaType="application/json" />
+                </request>
+                <response status="204" />
+            </method>
+        </resource>
+        <resource path="contacts.php">
+            <method name="GET" id="com:servandserv:BBBot:Application:UseCases:ContactsFind">
+                <response status="200">
+                    <representation mediaType="application/xml" element="bbbot:Contacts" /> 
+                </response>
+            </method>
+        </resource>
+    </resources>
+    
+</application>
