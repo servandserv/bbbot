@@ -30,8 +30,7 @@
 
     <xsd:simpleType name="timestamp">
         <xsd:restriction type="xsd:integer">
-            <xsd:minInclusive value="-99999999" />
-            <xsd:maxInclusive value="9999999999" />
+            <xsd:totalDigits value="13" />
         </xsd:restriction>
     </xsd:simpleType>
     

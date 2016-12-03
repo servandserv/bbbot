@@ -15,6 +15,27 @@
                 <xsd:element ref="Chat" minOccurs="0" />
                 <xsd:element ref="Message" minOccurs="0" />
                 <xsd:element ref="Command" minOccurs="0" />
+                <xsd:element ref="Delivery" minOccurs="0" />
+                <xsd:element ref="Read" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Delivery">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="mid" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+                <xsd:element name="watermark" type="core:timestamp" />
+                <xsd:element name="seq" type="xsd:integer" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Read">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="watermark" type="core:timestamp" />
+                <xsd:element name="seq" type="xsd:integer" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -46,6 +67,7 @@
                 <xsd:element name="name" type="xsd:string" minOccurs="0" />
                 <xsd:element name="alias" type="xsd:string" minOccurs="0" />
                 <xsd:element name="arguments" type="xsd:string" minOccurs="0" />
+                <xsd:element name="status" type="xsd:boolean" default="0" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -137,6 +159,20 @@
 	            <xsd:element name="name" type="xsd:string" />
 	            <xsd:element name="status" type="xsd:boolean" default="0" />
 	            <xsd:element name="last" type="core:dateTime" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Request">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="id" type="xsd:ID" />
+	            <xsd:element name="entityId" type="xsd:ID" />
+	            <xsd:element name="outerId" type="xsd:ID" minOccurs="0" />
+	            <xsd:element name="json" type="xsd:string" />
+	            <xsd:element name="watermark" type="core:timestamp" />
+	            <xsd:element name="delivered" type="core:timestamp" />
+	            <xsd:element name="read" type="core:timestamp" />
 	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>
