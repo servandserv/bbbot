@@ -177,6 +177,25 @@
 	    </xsd:complexType>
 	</xsd:element>
 	
+	<xsd:element name="APIErrors">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element ref="APIError" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="APIError">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="name" type="xsd:string" />
+	            <xsd:element name="URN" type="xsd:anyURI" />
+	            <xsd:element name="value" type="xsd:string" />
+	            <xsd:element name="description" type="xsd:string" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
     <!--
     <xsd:element name="Events">
         <xsd:complexType>
