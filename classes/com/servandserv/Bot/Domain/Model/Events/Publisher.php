@@ -12,7 +12,7 @@ class Publisher
         $this->subscribers = [];
     }
     
-    public function getInstance()
+    public static function getInstance()
     {
         if( static::$instance === NULL ) {
             static::$instance = new self();

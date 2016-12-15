@@ -5,7 +5,6 @@ namespace com\servandserv\Bot\Infrastructure\Domain\Model\Telegram;
 class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
 {
     const CONTEXT = "org.telegram";
-    const NAMESPACE = '\com\servandserv\Bot\Infrastructure\Domain\Model\Telegram';
 
     protected $cli;
     protected $NS;
