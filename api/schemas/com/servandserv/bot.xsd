@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema elementFormDefault="qualified"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="urn:com:servandserv:bbbot"
-	xmlns:core="urn:com:servandserv:bbbot:core"
-	targetNamespace="urn:com:servandserv:bbbot">
+	xmlns="urn:com:servandserv:data:bot"
+	xmlns:core="urn:com:servandserv:data:core"
+	targetNamespace="urn:com:servandserv:data:bot">
 	
-	<xsd:import namespace="urn:com:servandserv:bbbot:core" schemaLocation="core.xsd" />
+	<xsd:import namespace="urn:com:servandserv:data:core" schemaLocation="core.xsd" />
 	
-    <xsd:element name="Webhook">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element name="id" type="xsd:long" />
-                <xsd:element name="context" type="core:contextType" />
-                <xsd:element ref="Chat" minOccurs="0" />
-                <xsd:element ref="Message" minOccurs="0" />
+	<xsd:element name="Updates">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="context" type="contextType" />
+	            <xsd:element ref="Update" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Update">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="id" type="xsd:string" />
+	            <xsd:element name="context" type="contextType" />
+	            <xsd:element name="event" type="xsd:string" />
+	            <xsd:element ref="Chat" minOccurs="0" />
+	            <xsd:element ref="Message" minOccurs="0" />
                 <xsd:element ref="Command" minOccurs="0" />
                 <xsd:element ref="Delivery" minOccurs="0" />
                 <xsd:element ref="Read" minOccurs="0" />
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-    
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
     <xsd:element name="Delivery">
         <xsd:complexType>
             <xsd:sequence>
@@ -34,6 +44,7 @@
     <xsd:element name="Read">
         <xsd:complexType>
             <xsd:sequence>
+                <xsd:element name="mid" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
                 <xsd:element name="watermark" type="core:timestamp" />
                 <xsd:element name="seq" type="xsd:integer" />
             </xsd:sequence>
@@ -49,8 +60,8 @@
     <xsd:element name="Message">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="id" type="xsd:long" />
-                <xsd:element name="dt" type="core:timestamp" />
+                <xsd:element name="id" type="xsd:string" />
+                <xsd:element name="dt" type="xsd:integer" />
                 <xsd:element name="text" type="xsd:string" />
                 <xsd:element ref="User" minOccurs="0" />
                 <xsd:element ref="Contact" minOccurs="0" />
@@ -61,13 +72,21 @@
         </xsd:complexType>
     </xsd:element>
 
+    <xsd:element name="Commands">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="Command" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
     <xsd:element name="Command">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="name" type="xsd:string" minOccurs="0" />
                 <xsd:element name="alias" type="xsd:string" minOccurs="0" />
                 <xsd:element name="arguments" type="xsd:string" minOccurs="0" />
-                <xsd:element name="status" type="xsd:boolean" default="0" />
+                <xsd:element name="comments" type="xsd:string" minOccurs="0" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -83,13 +102,12 @@
     <xsd:element name="Chat">
 	    <xsd:complexType>
 	        <xsd:sequence>
-	            <xsd:element name="id" type="xsd:long" />
-	            <xsd:element name="context" type="core:contextType" />
+	            <xsd:element name="id" type="xsd:string" />
+	            <xsd:element name="context" type="contextType" />
 	            <xsd:element name="type" type="xsd:string" fixed="private" />
 	            <xsd:element ref="User" minOccurs="0" />
 	            <xsd:element ref="Location" minOccurs="0" maxOccurs="unbounded" />
 	            <xsd:element ref="Contact" minOccurs="0" maxOccurs="unbounded" />
-	            <xsd:element ref="Feed" minOccurs="0" maxOccurs="unbounded" />
 	            <xsd:element ref="Command" minOccurs="0" maxOccurs="unbounded" />
 	        </xsd:sequence>
 	    </xsd:complexType>
@@ -98,12 +116,12 @@
 	<xsd:element name="User">
 	    <xsd:complexType>
 	        <xsd:sequence>
-	            <xsd:element name="id" type="xsd:long" />
+	            <xsd:element name="id" type="xsd:string" />
 	            <xsd:element name="firstName" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="lastName" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="middleName" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="nickname" type="xsd:string" minOccurs="0" />
-	            <xsd:element name="gender" type="core:genderType" minOccurs="0" />
+	            <xsd:element name="gender" type="genderType" minOccurs="0" />
 	            <xsd:element name="locale" type="xsd:language" minOccurs="0" />
 	        </xsd:sequence>
 	    </xsd:complexType>
@@ -148,17 +166,7 @@
 	        <xsd:sequence>
 	            <xsd:element name="href" type="xsd:string" />
 	            <xsd:element name="alt" type="xsd:string" minOccurs="0" />
-	            <xsd:element name="content" type="core:contentType" default="text/html" />
-	        </xsd:sequence>
-	    </xsd:complexType>
-	</xsd:element>
-	
-	<xsd:element name="Feed">
-	    <xsd:complexType>
-	        <xsd:sequence>
-	            <xsd:element name="name" type="xsd:string" />
-	            <xsd:element name="status" type="xsd:boolean" default="0" />
-	            <xsd:element name="last" type="core:dateTime" />
+	            <xsd:element name="content" type="contentType" default="text/html" />
 	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>
@@ -177,42 +185,29 @@
 	    </xsd:complexType>
 	</xsd:element>
 	
-	<xsd:element name="APIErrors">
-	    <xsd:complexType>
-	        <xsd:sequence>
-	            <xsd:element ref="APIError" minOccurs="0" maxOccurs="unbounded" />
-	        </xsd:sequence>
-	    </xsd:complexType>
-	</xsd:element>
+	<xsd:simpleType name="genderType">
+	    <xsd:restriction base="xsd:string">
+	        <xsd:enumeration value="male" />
+	        <xsd:enumeration value="female" />
+	    </xsd:restriction>
+	</xsd:simpleType>
 	
-	<xsd:element name="APIError">
-	    <xsd:complexType>
-	        <xsd:sequence>
-	            <xsd:element name="name" type="xsd:string" />
-	            <xsd:element name="URN" type="xsd:anyURI" />
-	            <xsd:element name="value" type="xsd:string" />
-	            <xsd:element name="description" type="xsd:string" />
-	        </xsd:sequence>
-	    </xsd:complexType>
-	</xsd:element>
+	<xsd:simpleType name="contextType">
+	    <xsd:restriction base="xsd:string">
+	        <xsd:enumeration value="org.telegram" />
+	        <xsd:enumeration value="com.facebook" />
+	        <xsd:enumeration value="com.viber" />
+	    </xsd:restriction>
+	</xsd:simpleType>
 	
-    <!--
-    <xsd:element name="Events">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element ref="Event" minOccurs="0" maxOccurs="unbounded" />
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="Event">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element name="chatId" type="xsd:integer" />
-                <xsd:element name="command" type="xsd:string" />
-                <xsd:element name="arguments" type="xsd:string" />
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-    -->
+	<xsd:simpleType name="contentType">
+	    <xsd:restriction base="xsd:string">
+	        <xsd:enumeration value="text/html" />
+	        <xsd:enumeration value="image/gif" />
+	        <xsd:enumeration value="image/png" />
+	        <xsd:enumeration value="image/jpeg" />
+	        <xsd:enumeration value="application/pdf" />
+	    </xsd:restriction>
+	</xsd:simpleType>
+    
 </xsd:schema>
