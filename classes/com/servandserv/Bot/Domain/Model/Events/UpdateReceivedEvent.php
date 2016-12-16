@@ -30,8 +30,9 @@ class UpdateReceivedEvent extends StoredEvent
     
     public function bodyToXmlWriter( \XMLWriter &$xw )
     {
-        $xw->startElementNS( NULL, $this->update::ROOT, $this->update::NS );
-        $this->update->toXmlWriter( $xw, $this->update::ROOT, $this->update::NS, XMLAdaptor::CONTENTS );
+        $up = $this->update;
+        $xw->startElementNS( NULL, $up::ROOT, $up::NS );
+        $this->update->toXmlWriter( $xw, $up::ROOT, $up::NS, XMLAdaptor::CONTENTS );
         $xw->endElement();
     }
 }

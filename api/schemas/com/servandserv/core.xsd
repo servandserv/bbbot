@@ -5,7 +5,7 @@
 	targetNamespace="urn:com:servandserv:data:core">
 
     <xsd:simpleType name="timestamp">
-        <xsd:restriction type="xsd:integer">
+        <xsd:restriction base="xsd:integer">
             <xsd:totalDigits value="13" />
         </xsd:restriction>
     </xsd:simpleType>

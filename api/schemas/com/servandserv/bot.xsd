@@ -53,7 +53,9 @@
     
     <xsd:element name="Messages">
         <xsd:complexType>
-            <xsd:element ref="Message" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:sequence>
+                <xsd:element ref="Message" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
     
@@ -149,7 +151,9 @@
 	
 	<xsd:element name="Contacts">
 	    <xsd:complexType>
-	        <xsd:element ref="Contact" minOccurs="0" maxOccurs="unbounded" />
+	        <xsd:sequence>
+	            <xsd:element ref="Contact" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>
 	
