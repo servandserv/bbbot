@@ -1,6 +1,8 @@
 <?php
 
-namespace com\servandserv\Bot\Domain\Model\CurlClient;
+namespace com\servandserv\Bot\Infrastructure\HTTP;
+
+use \com\servandserv\Bot\Domain\Model\CurlClient;
 
 class GuzzleHttpClient implements CurlClient
 {
@@ -12,13 +14,8 @@ class GuzzleHttpClient implements CurlClient
         $this->cli = $cli;
     }
     
-    public function request( $method, $command, $body )
+    public function request( $method, $command, array $args )
     {
-        if( is_array( $body ) ) {
-            $args = [ "json"=>$body ];
-        } else {
-            $args = [ "body"=>$body ];
-        }
         $this->resp = $this->cli->request( $method, $command, $args );
         return $this;
     }
