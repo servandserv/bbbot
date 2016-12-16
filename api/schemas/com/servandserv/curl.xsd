@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="urn:com:servandserv:data:curl"
+	targetNamespace="urn:com:servandserv:data:curl">
+
+    <xsd:element name="Config">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="url" type="xsd:string" />
+                <xsd:element name="cookies" type="xsd:string" minOccurs="0" />
+                <xsd:element ref="Header" minOccurs="0" maxOccurs="unbounded" />
+                <xsd:element ref="Auth" minOccurs="0" />
+                <xsd:element ref="Cert" minOccurs="0" />
+                <xsd:element ref="Proxy" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Request">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="query" type="xsd:string" />
+                <xsd:element name="method" type="methodType" />
+                <xsd:element name="content" type="xsd:string" minOccurs="0" />
+                <xsd:element ref="Header" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Header">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="name" type="xsd:string" />
+                <xsd:element name="value" type="xsd:string" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Auth">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="password" type="xsd:string" />
+                <xsd:element name="username" type="xsd:string" />
+                <xsd:element name="type" type="authType" default="basic" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Cert">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="certinfo" type="xsd:string" />
+                <xsd:element name="cainfo" type="xsd:string" />
+                <xsd:element name="capath" type="xsd:string" />
+                <xsd:element name="password" type="xsd:string" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Proxy">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="url" type="xsd:string" />
+                <xsd:element name="password" type="xsd:string" minOccurs="0" />
+                <xsd:element name="username" type="xsd:string" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:simpleType name="methodType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="POST" />
+            <xsd:enumeration value="GET" />
+            <xsd:enumeration value="PUT" />
+            <xsd:enumeration value="DELETE" />
+            <xsd:enumeration value="HEAD" />
+            <xsd:enumeration value="OPTIONS" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="authType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="basic" />
+            <xsd:enumeration value="digest" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>

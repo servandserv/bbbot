@@ -31,12 +31,12 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         $requests = $view->getRequests();
         foreach( $requests as $request ) {
             $watermark = round( microtime( true ) * 1000 );
-            $resp = $this->cli->request( $request["method"], $request["command"], [ "json"=>$request["json"] ] );
+            $resp = $this->cli->request( $request );
             if( $json = json_decode( $resp->getBody(), TRUE ) ) {
                 if( isset( $json["message_token"] ) && array_key_exists( "status", $json ) && $json["status"] == 0 ) {
                     $ret = ( new \com\servandserv\data\bot\Request() )
                         ->setId( $json["message_token"] )
-                        ->setJson( $request["json"] )
+                        ->setJson( $request->getContent() )
                         ->setWatermark( $watermark );
                     if( $cb ) $cb( $ret );
                 }

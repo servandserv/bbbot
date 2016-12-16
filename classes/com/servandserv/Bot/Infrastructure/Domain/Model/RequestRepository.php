@@ -12,7 +12,7 @@ class RequestRepository
             ":entityId" => $req->getEntityId(),
             ":id" => $req->getId(),
             ":outerId" => $req->getOuterId(),
-            ":json" => json_encode( $req->getJson(), JSON_UNESCAPED_UNICODE ),
+            ":json" => $req->getJson(),
             ":watermark" => $req->getWatermark()
         ];
         $query = "";

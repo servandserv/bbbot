@@ -39,13 +39,13 @@ class BotAdapter implements BotPort
         $requests = $view->getRequests();
         foreach( $requests as $request ) {
             $watermark = round( microtime( true ) * 1000 );
-            $resp = $this->cli->request( $request["method"], $request["command"], [ "json"=>$request["json"] ] );
+            $resp = $this->cli->request( $request );
             if( $json = json_decode( $resp->getBody(), TRUE ) ) {
                 file_put_contents( "../tmp/response", print_r( $json, true ) );
                 if( isset( $json["message_id"] ) ) {
                     $ret = ( new Request() )
                         ->setId( $json["message_id"] )
-                        ->setJson( $request["json"] )
+                        ->setJson( $request->getContent() )
                         ->setWatermark( $watermark );
                     if( $cb ) $cb( $ret );
                 }
