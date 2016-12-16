@@ -3,6 +3,7 @@
 namespace com\servandserv\Bot\Infrastructure\Domain\Model\FB;
 
 use \com\servandserv\Bot\Domain\Model\BotPort;
+use \com\servandserv\Bot\Domain\Model\CurlClient;
 use \com\servandserv\data\bot\Updates;
 use \com\servandserv\data\bot\Update;
 use \com\servandserv\data\bot\Request;
@@ -22,7 +23,7 @@ class BotAdapter implements BotPort
     protected $NS;
     protected static $updates;
 
-    public function __construct( \GuzzleHttp\Client $cli, $NS )
+    public function __construct( CurlClient $cli, $NS )
     {
         $this->cli = $cli;
         $this->NS = $NS;

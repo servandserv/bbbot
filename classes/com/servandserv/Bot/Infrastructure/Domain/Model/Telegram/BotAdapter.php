@@ -2,6 +2,8 @@
 
 namespace com\servandserv\Bot\Infrastructure\Domain\Model\Telegram;
 
+use \com\servandserv\Bot\Domain\Model\CurlClient;
+
 class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
 {
     const CONTEXT = "org.telegram";
@@ -10,7 +12,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     protected $NS;
     protected static $updates;
 
-    public function __construct( \GuzzleHttp\Client $cli, $NS )
+    public function __construct( CurlClient $cli, $NS )
     {
         $this->cli = $cli;
         $this->NS = $NS;

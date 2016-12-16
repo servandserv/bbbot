@@ -2,6 +2,8 @@
 
 namespace com\servandserv\Bot\Infrastructure\Domain\Model\Viber;
 
+use \com\servandserv\Bot\Domain\Model\CurlClient;
+
 class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
 {
     const CONTEXT = "com.viber";
@@ -11,7 +13,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     protected $token;
     protected static $updates;
 
-    public function __construct( \GuzzleHttp\Client $cli, $token, $NS )
+    public function __construct( CurlClient $cli, $token, $NS )
     {
         $this->token = $token;
         $this->NS = $NS;
