@@ -41,7 +41,6 @@ class BotAdapter implements BotPort
             $watermark = round( microtime( true ) * 1000 );
             $resp = $this->cli->request( $request );
             if( $json = json_decode( $resp->getBody(), TRUE ) ) {
-                file_put_contents( "../tmp/response", print_r( $json, true ) );
                 if( isset( $json["message_id"] ) ) {
                     $ret = ( new Request() )
                         ->setId( $json["message_id"] )

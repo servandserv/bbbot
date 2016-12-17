@@ -26,24 +26,30 @@ class RegisterUpdates
         // todo validate client
         //if( $_SESSION[session_name()] == "Unknown" ) $this->port->throwException( "Forbidden", 403 );
         
-        // validate request
-        $updates = $port->getUpdates()->getUpdate();
-        foreach( $updates as $update ) {
-            if( $errors = $update->validateType( new ErrorsHandler() ) ) {
-                error_log( $errors->toXmlStr() );
-            } else {
-                try {
-                    $this->ur->beginTransaction();
-                    $this->ur->register( $update );
-                    $this->ur->commit();
-                    $this->pubsub->publish( new UpdateRegisteredEvent( $update ) );
-                } catch( \Exception $e ) {
-                    $this->ur->rollback();
-                    error_log( $e->getMessage() . " in ".__FILE__ . " on " . __LINE__ );
-                    // silence
+        // отлавливаем все ошибки и просто тупо молчим в ответ, мессенджеры всегда правы
+        try {
+            // validate request
+            $updates = $port->getUpdates()->getUpdate();
+            foreach( $updates as $update ) {
+                if( $errors = $update->validateType( new ErrorsHandler() ) ) {
+                    error_log( $errors->toXmlStr() );
+                } else {
+                    try {
+                        $this->ur->beginTransaction();
+                        $this->ur->register( $update );
+                        $this->ur->commit();
+                        $this->pubsub->publish( new UpdateRegisteredEvent( $update ) );
+                    } catch( \Exception $e ) {
+                        $this->ur->rollback();
+                        error_log( $e->getMessage() . " in ".__FILE__ . " on " . __LINE__ );
+                        // silence
+                    }
                 }
             }
+            $port->response();
+        } catch( \Exception $e ) {
+            error_log( $e->getMessage() . " in " . $e->getFile() . " on ". $e->getLine() );
+            //silence
         }
-        $port->response();
     }
 }
