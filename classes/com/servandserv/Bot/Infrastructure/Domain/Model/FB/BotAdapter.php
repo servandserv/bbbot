@@ -21,12 +21,14 @@ class BotAdapter implements BotPort
 
     protected $cli;
     protected $NS;
+    protected $secret;
     protected static $updates;
 
-    public function __construct( CurlClient $cli, $NS )
+    public function __construct( CurlClient $cli, $secret, $NS )
     {
         $this->cli = $cli;
         $this->NS = $NS;
+        $this->secret = $secret;
     }
     
     public function makeRequest( $name, array $args, callable $cb = NULL )
@@ -52,12 +54,15 @@ class BotAdapter implements BotPort
         }
     }
     
+    
+    
     public function getUpdates()
     {
         if( NULL == self::$updates ) {
             $in = file_get_contents( "php://input" );
             self::$updates = ( new Updates() )->setContext( self::CONTEXT );
             if( !$json = json_decode( $in, TRUE ) ) throw new \Exception( "Error on decode update json in ".__FILE__." on line ".__LINE__ );
+            if( !$this->auth( $json ) ) throw new \Exception( "Invalid X-Hub-Signature header in ".__FILE__." on ".__LINE__ );
             if( !isset( $json["entry"] ) || !is_array( $json["entry"] ) ) throw new \Exception( "Error no entry node in update json in ".__FILE__." on line ".__LINE__ );
             foreach( $json["entry"] as $entry ) {
                 if( !isset( $entry["messaging"] ) || !is_array( $entry["messaging"] ) ) continue;
@@ -137,5 +142,16 @@ class BotAdapter implements BotPort
             header( $protocol . " " . $code . " " . http_response_code( $code ) );
         }
         exit;
+    }
+    
+    private function auth( $json )
+    {
+        $in = json_encode( $json, JSON_UNESCAPED_UNICODE );
+        if( isset( $_SERVER["HTTP_X_HUB_SIGNATURE"] ) && 
+            $_SERVER["HTTP_X_HUB_SIGNATURE"] === "sha1=" . hash_hmac( "sha1", $in, $this->secret )
+        ) {
+            return TRUE;
+        }
+        return FALSE;
     }
 }
