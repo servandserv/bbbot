@@ -65,7 +65,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     
     private function translateToUpdate( \org\telegram\data\bot\Update $tup )
     {
-        $up = ( new Update() )->setId( $tup->getUpdate_id() );
+        $up = ( new Update() )->setId( $tup->getUpdate_id() )->setContext( self::CONTEXT );
         $up->setChat( ( new Chat() )->setContext( self::CONTEXT ) );
         $this->fromCallbackQueryType( $tup->getCallback_query(), $up );
         $this->fromMessageType( $tup->getMessage(), $up );

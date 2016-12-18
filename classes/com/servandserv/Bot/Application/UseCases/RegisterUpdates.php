@@ -31,8 +31,9 @@ class RegisterUpdates
             // validate request
             $updates = $port->getUpdates()->getUpdate();
             foreach( $updates as $update ) {
-                if( $errors = $update->validateType( new ErrorsHandler() ) ) {
-                    error_log( $errors->toXmlStr() );
+                $eh = new ErrorsHandler();
+                if( $update->validateType( $eh ) ) {
+                    error_log( $eh->getErrors()->toXmlStr() );
                 } else {
                     try {
                         $this->ur->beginTransaction();
