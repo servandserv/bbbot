@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="urn:org:telegram:data:bot"
+	targetNamespace="urn:org:telegram:data:bot">
+
+    <xsd:element name="Update">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="update_id" type="xsd:integer" />
+                <xsd:element name="message" type="MessageType" minOccurs="0" />
+                <xsd:element name="edited_message" type="MessageType" minOccurs="0" />
+                <xsd:element name="channel_post" type="MessageType" minOccurs="0" />
+                <xsd:element name="edited_channel_post" type="MessageType" minOccurs="0" />
+                <xsd:element name="callback_query" type="CallbackQueryType" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:complexType name="MessageType">
+        <xsd:sequence>
+            <xsd:element name="message_id" type="xsd:integer" />
+            <xsd:element name="from" type="UserType" minOccurs="0" />
+            <xsd:element name="date" type="xsd:integer" />
+            <xsd:element name="chat" type="ChatType" />
+            <xsd:element name="forward_from" type="UserType" minOccurs="0" />
+            <xsd:element name="forward_from_chat" type="ChatType" minOccurs="0" />
+            <xsd:element name="forward_from_message_id" type="xsd:integer" minOccurs="0" />
+            <xsd:element name="forward_date" type="xsd:integer" minOccurs="0" />
+            <xsd:element name="reply_to_message" type="MessageType" minOccurs="0" />
+            <xsd:element name="edit_date" type="xsd:integer" minOccurs="0" />
+            <xsd:element name="text" type="messageTextType" minOccurs="0" />
+            <xsd:element name="entities" type="MessageEntityType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="contact" type="ContactType" minOccurs="0" />
+            <xsd:element name="location" type="LocationType" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="UserType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:integer" />
+            <xsd:element name="first_name" type="xsd:string" />
+            <xsd:element name="last_name" type="xsd:string" minOccurs="0" />
+            <xsd:element name="username" type="xsd:string" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ChatType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:integer" />
+            <xsd:element name="type" type="xsd:string" />
+            <xsd:element name="title" type="xsd:string" minOccurs="0" />
+            <xsd:element name="username" type="xsd:string" minOccurs="0" />
+            <xsd:element name="first_name" type="xsd:string" minOccurs="0" />
+            <xsd:element name="last_name" type="xsd:string" minOccurs="0" />
+            <xsd:element name="all_members_are_administrators" type="xsd:boolean" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="MessageEntityType">
+        <xsd:sequence>
+            <xsd:element name="type" type="messageEntityTypeType" />
+            <xsd:element name="offset" type="xsd:integer" />
+            <xsd:element name="length" type="xsd:integer" />
+            <xsd:element name="url" type="xsd:string" minOccurs="0" />
+            <xsd:element name="user" type="UserType" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ContactType">
+        <xsd:sequence>
+            <xsd:element name="phone_number" type="xsd:string" />
+            <xsd:element name="first_name" type="xsd:string" />
+            <xsd:element name="last_name" type="xsd:string" minOccurs="0" />
+            <xsd:element name="user_id" type="xsd:integer" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="LocationType">
+        <xsd:sequence>
+            <xsd:element name="longitude" type="xsd:float" />
+            <xsd:element name="latitude" type="xsd:float" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="CallbackQueryType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string" />
+            <xsd:element name="from" type="UserType" />
+            <xsd:element name="message" type="MessageType" minOccurs="0" />
+            <xsd:element name="inline_message_id" type="xsd:string" minOccurs="0" />
+            <xsd:element name="chat_instance" type="xsd:string" />
+            <xsd:element name="data" type="xsd:string" minOccurs="0" />
+            <xsd:element name="game_short_name" type="xsd:string" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="messageTextType">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="4096" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="messageEntityTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="mention" />
+            <xsd:enumeration value="hashtag" />
+            <xsd:enumeration value="bot_command" />
+            <xsd:enumeration value="url" />
+            <xsd:enumeration value="email" />
+            <xsd:enumeration value="bold" />
+            <xsd:enumeration value="italic" />
+            <xsd:enumeration value="code" />
+            <xsd:enumeration value="pre" />
+            <xsd:enumeration value="text_link" />
+            <xsd:enumeration value="text_mention" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>
