@@ -42,7 +42,7 @@ class RegisterUpdates
                         $this->pubsub->publish( new UpdateRegisteredEvent( $update ) );
                     } catch( \Exception $e ) {
                         $this->ur->rollback();
-                        error_log( $e->getMessage() . " in ".__FILE__ . " on " . __LINE__ );
+                        error_log( $e->getMessage() . " in ". $e->getFile() . " on " . $e->getLine() );
                         // silence
                     }
                 }

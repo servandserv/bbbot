@@ -67,7 +67,7 @@ class UpdateRepository
             foreach( $contact as $col => $val ) {
                 $query .= ",`".substr( $col, 1 )."`=".$col;
             }
-            $query = "INSERT INTO `ncontacts` SET ".substr( $query, 1 ).";";
+            $query = "INSERT INTO `ncontacts` SET ".substr( $query, 1 )." ON DUPLICATE KEY UPDATE ".substr( $query, 1 ).";";
             $sth = $this->conn->prepare( $query );
             $sth->execute( $contact );
         }

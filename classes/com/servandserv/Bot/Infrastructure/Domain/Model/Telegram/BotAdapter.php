@@ -16,9 +16,11 @@ use \com\servandserv\data\bot\Command;
 class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
 {
     const CONTEXT = "org.telegram";
+    const LIMIT_PER_SECOND = 30;
 
     protected $cli;
     protected $NS;
+    protected $messagesPerSecond;
     protected static $updates;
 
     public function __construct( CurlClient $cli, $NS )
@@ -29,6 +31,8 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     
     public function makeRequest( $name, array $args, callable $cb = NULL )
     {
+        $timer = \com\servandserv\Bot\Domain\Service\Timer::getInstance( intval( self::LIMIT_PER_SECOND *0.75 ) );
+        
         $clName = $this->NS."\\".$name;
         if( !class_exists( $clName ) ) throw new \Exception( "Class for VIEW name \"$name\" not exists." );
         $cl = new \ReflectionClass( $clName );
@@ -36,6 +40,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         
         $requests = $view->getRequests();
         foreach( $requests as $request ) {
+            $timer->next();// следующая отправка
             $watermark = round( microtime( true ) * 1000 );
             $resp = $this->cli->request( $request );
             if( $json = json_decode( $resp->getBody(), TRUE ) ) {
@@ -90,7 +95,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
             ->setFirstName( $from->getFirst_name() )
             ->setLastName( $from->getLast_name() )
             ->setNickname( $from->getUsername() );
-        
+        $chat->setId( $from->getId() );
         $chat->setUser( $u );
     }
     

@@ -65,6 +65,7 @@
                 <xsd:element name="id" type="xsd:string" />
                 <xsd:element name="dt" type="xsd:integer" />
                 <xsd:element name="text" type="xsd:string" />
+                <xsd:element name="UID" type="xsd:string" minOccurs="0" />
                 <xsd:element ref="User" minOccurs="0" />
                 <xsd:element ref="Contact" minOccurs="0" />
                 <xsd:element ref="Location" minOccurs="0" />
@@ -107,6 +108,7 @@
 	            <xsd:element name="id" type="xsd:string" />
 	            <xsd:element name="context" type="contextType" />
 	            <xsd:element name="type" type="xsd:string" fixed="private" />
+	            <xsd:element name="UID" type="xsd:string" minOccurs="0" />
 	            <xsd:element ref="User" minOccurs="0" />
 	            <xsd:element ref="Location" minOccurs="0" maxOccurs="unbounded" />
 	            <xsd:element ref="Contact" minOccurs="0" maxOccurs="unbounded" />

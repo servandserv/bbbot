@@ -19,18 +19,7 @@ class ChatRepository
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
-            $chat = new \com\servandserv\data\bot\Chat();
-            $chat->fromMarkupArray( $row );
-            $user = new \com\servandserv\data\bot\User();
-            $chat->setUser( $user->fromMarkupArray( $row ) );
-            if( $row["latitude"] && $row["longitude"] ) {
-                $loc = new \com\servandserv\data\bot\Location();
-                $chat->setLocation( $loc->fromMarkupArray( $row ) );
-            }
-            if( $row["phoneNumber"] ) {
-                $c = new \com\servandserv\data\bot\Contact();
-                $chat->setContact( $c->fromMarkupArray( $row ) );
-            }
+            $chat = $this->chatFromRow( $row );
         }
         return $chat;
     }
@@ -43,18 +32,20 @@ class ChatRepository
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
-            $chat = new \com\servandserv\data\bot\Chat();
-            $chat->fromMarkupArray( $row );
-            $user = new \com\servandserv\data\bot\User();
-            $chat->setUser( $user->fromMarkupArray( $row ) );
-            if( $row["latitude"] && $row["longitude"] ) {
-                $loc = new \com\servandserv\data\bot\Location();
-                $chat->setLocation( $loc->fromMarkupArray( $row ) );
-            }
-            if( $row["phoneNumber"] ) {
-                $c = new \com\servandserv\data\bot\Contact();
-                $chat->setContact( $c->fromMarkupArray( $row ) );
-            }
+            $chat = $this->chatFromRow( $row );
+        }
+        return $chat;
+    }
+    
+    public function findByUID( $uid )
+    {
+        $chat = NULL;
+        $params = [ ":UID" => $UID ];
+        $query = "SELECT * FROM `nchats` WHERE `UID`=:UID;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        while( $row = $sth->fetch() ) {
+            $chat = $this->chatFromRow( $row );
         }
         return $chat;
     }
@@ -62,7 +53,7 @@ class ChatRepository
     public function locationsFor( \com\servandserv\data\bot\Chat $chat )
     {
         $params = [ ":entityId" => $this->getEntityId( [$chat->getId(), $chat->getContext()] )];
-        $query = "SELECT * FROM `nlocations` WHERE `entityId`=:entityId;";
+        $query = "SELECT * FROM `nlocations` WHERE `entityId`=:entityId ORDER BY `updated` DESC;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
@@ -77,7 +68,7 @@ class ChatRepository
     public function contactsFor( \com\servandserv\data\bot\Chat $chat )
     {
         $params = [ ":entityId" => $this->getEntityId( [$chat->getId(), $chat->getContext()] )];
-        $query = "SELECT * FROM `ncontacts` WHERE `entityId`=:entityId;";
+        $query = "SELECT * FROM `ncontacts` WHERE `entityId`=:entityId ORDER BY `updated` DESC;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
@@ -92,7 +83,7 @@ class ChatRepository
     public function commandsFor( \com\servandserv\data\bot\Chat $chat )
     {
         $params = [ ":entityId" => $this->getEntityId( [$chat->getId(), $chat->getContext()] )];
-        $query = "SELECT * FROM `ncommands` WHERE `entityId`=:entityId;";
+        $query = "SELECT * FROM `ncommands` WHERE `entityId`=:entityId ORDER BY `updated` DESC;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
@@ -101,6 +92,24 @@ class ChatRepository
             $chat->setCommand( $loc );
         }
         
+        return $chat;
+    }
+    
+    private function chatFromRow( array $row )
+    {
+        $chat = new \com\servandserv\data\bot\Chat();
+        $chat->fromMarkupArray( $row );
+        $user = new \com\servandserv\data\bot\User();
+        $chat->setUser( $user->fromMarkupArray( $row ) );
+        if( $row["latitude"] && $row["longitude"] ) {
+            $loc = new \com\servandserv\data\bot\Location();
+            $chat->setLocation( $loc->fromMarkupArray( $row ) );
+        }
+        if( $row["phoneNumber"] ) {
+            $c = new \com\servandserv\data\bot\Contact();
+            $chat->setContact( $c->fromMarkupArray( $row ) );
+        }
+            
         return $chat;
     }
 }
