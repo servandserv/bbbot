@@ -27,6 +27,7 @@ class Publisher
     
     public function publish( Event $event )
     {
+        $event->setPubSub( $this );//добавим в событие ссылку на публишер, чтобы использовать цепочки событий
         foreach( $this->subscribers as $sub ) {
             if( $sub->isSubscribedTo( $event ) ) {
                 $sub->handle( $event );

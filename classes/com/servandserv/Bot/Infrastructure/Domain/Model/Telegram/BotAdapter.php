@@ -105,7 +105,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         if( !$mt ) return NULL;
         $m = ( new Message() )
             ->setId( $mt->getMessage_id() )
-            ->setDt( $mt->getDate() )
+            ->setDt( str_pad( $mt->getDate(), 13, "0" ) )
             ->setText( $mt->getText() );
         $this->fromLocationType( $mt->getLocation(), $m, $up->getChat() );
         $this->fromContactType( $mt->getContact(), $m, $up->getChat() );
@@ -165,62 +165,6 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
             );
     }
     
-    /**
-    public function getUpdates()
-    {
-        if( NULL == self::$updates ) {
-            $in = file_get_contents( "php://input" );
-            
-            self::$updates = ( new \com\servandserv\data\bot\Updates() )->setContext( self::CONTEXT );
-            if( !$json = json_decode( $in, TRUE ) ) throw new \Exception( "Error on decode update json in ".__FILE__." on line ".__LINE__ );
-            $up = ( new \com\servandserv\data\bot\Update() )->setContext( self::CONTEXT );
-            $chat = new \com\servandserv\data\bot\Chat();
-            if( isset( $json["update_id"] ) ) $up->setId( $json["update_id"] );
-            if( isset( $json["message"] ) ) {
-                $up->setEvent( "MessageReceived" );
-                $m = new \com\servandserv\data\bot\Message();
-                if( isset( $json["message"]["message_id"] ) ) $m->setId( $json["message"]["message_id"] );
-                if( isset( $json["message"]["date"] ) ) $m->setDt( $json["message"]["date"] );
-                if( isset( $json["message"]["chat"] ) ) {
-                    $chat = $this->chatFromJSON( $json["message"]["chat"] );
-                }
-                if( isset( $json["message"]["text"] ) ) {
-                    $m->setText( $json["message"]["text"] );
-                }
-                if( isset( $json["message"]["from"] ) ) {
-                    $m->setUser( $this->userFromJSON( $json["message"]["from"] ) );
-                }
-                if( isset( $json["message"]["location"] ) ) {
-                    $loc = $this->locationFromJSON( $json["message"]["location"] );
-                    $m->setLocation( $loc );
-                    $chat->setLocation( $loc );
-                }
-                if( isset( $json["message"]["contact"] ) ) {
-                    $c = $this->contactFromJSON( $json["message"]["contact"] );
-                    $m->setContact( $c );
-                    $chat->setContact( $c );
-                }
-                if( isset( $json["message"]["entities"] ) ) {
-                    foreach( $json["message"]["entities"] as $ent ) {
-                        if( $ent["type"] == "bot_command" && isset( $json["message"]["text"] ) ) {
-                            $name = substr( $json["message"]["text"], intval( $ent["offset"] ) + 1, intval( $ent["offset"] ) + intval( $ent["length"] ) );
-                            $arg = substr( $json["message"]["text"], intval( $ent["offset"] ) + 1 + intval( $ent["length"] ) );
-                            $com = new \com\servandserv\data\bot\Command();
-                            $com->setName( $name );
-                            $com->setArguments( $arg );
-                            $up->setCommand( $com );
-                        }
-                    }
-                }
-                $up->setMessage( $m );
-            }
-            $up->setChat( $chat->setContext( self::CONTEXT ) );
-            self::$updates->setUpdate( $up );
-        }
-        return self::$updates;
-    }
-    */
-    
     public function response( \com\servandserv\happymeal\XML\Schema\AnyType $anyType = NULL, $code = 200 )
     {
         if( !headers_sent() ) {
@@ -229,43 +173,5 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         }
         exit;
     }
-    
-    private function userFromJSON( $json )
-    {
-        $user = new \com\servandserv\data\bot\User();
-        $user->setId( $json["id"] );
-        $user->setFirstName( $json["first_name"] );
-        $user->setLastName( isset( $json["last_name"] ) ? $json["last_name"] : "" );
-        $user->setNickname( isset( $json["username"] ) ? $json["username"] : "" );
-        return $user;
-    }
-    
-    private function chatFromJSON( $json )
-    {
-        $chat = new \com\servandserv\data\bot\Chat();
-        $chat->setId( $json["id"] );
-        $chat->setType( $json["type"] );
-        if( isset( $json["last_name"] ) || isset( $json["first_name"] ) || isset( $json["username"] ) ) {
-            $user = new \com\servandserv\data\bot\User();
-            $user->setFirstName( isset( $json["first_name"] ) ? $json["first_name"] : "" );;
-            $user->setLastName( isset( $json["last_name"] ) ? $json["last_name"] : "" );
-            $user->setNickname( isset( $json["username"] ) ? $json["username"] : "" );
-            $chat->setUser( $user );
-        }
-        return $chat;
-    }
-    
-    private function locationFromJSON( $json )
-    {
-        $loc = new \com\servandserv\data\bot\Location();
-        $loc->fromMarkupArray( $json );
-        return $loc;
-    }
-    
-    private function contactFromJSON( $json )
-    {
-        $c = new \com\servandserv\data\bot\Contact();
-        $c->setPhoneNumber( str_replace( ["+","(",")","[","]","-"], "", $json["phone_number"] ) );
-        return $c;
-    }
+
 }

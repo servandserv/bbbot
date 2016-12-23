@@ -11,11 +11,23 @@ abstract class StoredEvent implements Event
     protected $occuredOn;
     protected $type;
     protected $id;
+    protected $pubsub;
 
     public function occuredOn() { return $this->occuredOn; }
     public function id() { return $this->id; }
     public function type() { return $this->type; }
     public function setId( $id ) { $this->id = $id; return $this; }
+    
+    public function setPubSub( Publisher $pubsub )
+    {
+        $this->pubsub = $pubsub;
+        return $this;
+    }
+    
+    public function getPubSub()
+    {
+        return $this->pubsub;
+    }
     
     public function toXmlStr()
     {

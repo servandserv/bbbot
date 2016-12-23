@@ -2,12 +2,20 @@
 
 namespace com\servandserv\Bot\Application\Commands;
 
+use \com\servandserv\Bot\Domain\Model\Events\Publisher;
+
 abstract class AbstractCommand
 {
 
     public static $pattern = NULL;
     public static $command = NULL;
     public static $name = NULL;
+    protected $pubsub;
+
+    public function __construct( Publisher $pubsub )
+    {
+        $this->pubsub = $pubsub;
+    }
 
     public static function getName()
     {

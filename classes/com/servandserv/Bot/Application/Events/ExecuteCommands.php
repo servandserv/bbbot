@@ -5,6 +5,7 @@ namespace com\servandserv\Bot\Application\Events;
 use \com\servandserv\data\bot\Update;
 use \com\servandserv\Bot\Application\ServiceLocator;
 use \com\servandserv\Bot\Domain\Model\Events\Subscriber;
+use \com\servandserv\Bot\Domain\Model\Events\Publisher;
 use \com\servandserv\Bot\Domain\Model\Events\Event;
 use \com\servandserv\Bot\Infrastructure\AsyncLazy;
 use \com\servandserv\data\bot\Commands;
@@ -15,12 +16,14 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
 {
 
     protected $commands;
+    protected $duration;
 
-    public function __construct( $id = NULL, array $commands = NULL )
+    public function __construct( $id = NULL, array $commands = NULL, $duration = NULL )
     {
         if( is_array( $commands ) ) {
             $this->commands = $commands;
         }
+        $this->duration = $duration;
         parent::__construct( $id );
     }
 
@@ -39,7 +42,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
     
     public function run( $args )
     {
-        try {
+        //try {
         
             $sl = \Locator::getInstance();
         
@@ -47,7 +50,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
             $update = $args["event"]->getUpdate();
             foreach( $this->commands as $className ) {
                 if( class_exists( $className ) && call_user_func_array( $className."::fit", [ $update, $this ] ) ) {
-                    $this->execute( $className, $update, $sl );
+                    $this->execute( $className, $update, $sl, $args["event"]->getPubSub() );
                 }
             }
             
@@ -55,21 +58,21 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
             $this->setResult( TRUE );
             $this->close();
 
-        } catch( \Exception $e ) {
+        //} catch( \Exception $e ) {
             // что-то не задалось
             // закроем асинхронную часть
             // глобальную блокировку говорят отпустит само
             //$this->setResult( TRUE );
             //$this->close();
-            throw new \Exception( $e->getMessage(), $e->getCode() );
-        }
+        //    throw new \Exception( $e->getMessage(), $e->getCode() );
+        //}
     }
     
-    private function execute( $className, Update $update, ServiceLocator $sl )
+    private function execute( $className, Update $update, ServiceLocator $sl, Publisher $pubsub )
     {
         $port = $sl->create( "com.servandserv.bot.domain.model.BotPort", [ $sl->get( "bot" ) ] );
         $cl = new \ReflectionClass( $className );
-        $obj = call_user_func_array( array( &$cl, 'newInstance' ), [] );
+        $obj = call_user_func_array( array( &$cl, 'newInstance' ), [ $pubsub ] );
         $obj->execute( $update, $sl, $this->toCommandsDTO(), $port );
     }
     

@@ -4,7 +4,7 @@ namespace com\servandserv\Bot\Domain\Model\Events;
 
 use \com\servandserv\data\bot\Update;
 
-class UpdateRegisteredEvent implements Event
+class UpdateRegisteredEvent extends InMemoryEvent
 {
     public function __construct( Update $update )
     {

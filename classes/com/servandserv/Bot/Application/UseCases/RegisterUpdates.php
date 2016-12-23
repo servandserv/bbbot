@@ -4,10 +4,12 @@ namespace com\servandserv\Bot\Application\UseCases;
 
 use \com\servandserv\Bot\Domain\Model\UpdateRepository;
 use \com\servandserv\Bot\Domain\Model\BotPort;
-use \com\servandserv\Bot\Domain\Model\Events\UpdateRegisteredEvent;
 use \com\servandserv\data\bot\Update;
 use \com\servandserv\happymeal\ErrorsHandler;
+use \com\servandserv\happymeal\errors\Error;
 use \com\servandserv\Bot\Domain\Model\Events\Publisher;
+use \com\servandserv\Bot\Domain\Model\Events\UpdateRegisteredEvent;
+use \com\servandserv\Bot\Domain\Model\Events\ErrorOccuredEvent;
 
 class RegisterUpdates
 {
@@ -33,7 +35,7 @@ class RegisterUpdates
             foreach( $updates as $update ) {
                 $eh = new ErrorsHandler();
                 if( $update->validateType( $eh ) ) {
-                    error_log( $eh->getErrors()->toXmlStr() );
+                    $this->pubsub->publish( new ErrorOccuredEvent( $eh->getErrors() ) );
                 } else {
                     try {
                         $this->ur->beginTransaction();
@@ -42,14 +44,18 @@ class RegisterUpdates
                         $this->pubsub->publish( new UpdateRegisteredEvent( $update ) );
                     } catch( \Exception $e ) {
                         $this->ur->rollback();
-                        error_log( $e->getMessage() . " in ". $e->getFile() . " on " . $e->getLine() );
+                        $this->pubsub->publish( new ErrorOccuredEvent(
+                            ( new Error() )->setDescription( $e->getMessage() . " in ". $e->getFile() . " on " . $e->getLine() )
+                        ));
                         // silence
                     }
                 }
             }
             $port->response();
         } catch( \Exception $e ) {
-            error_log( $e->getMessage() . " in " . $e->getFile() . " on ". $e->getLine() );
+            $this->pubsub->publish( new ErrorOccuredEvent(
+                ( new Error() )->setDescription( $e->getMessage() . " in ". $e->getFile() . " on " . $e->getLine() )
+            ));
             //silence
         }
     }

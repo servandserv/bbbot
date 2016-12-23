@@ -27,7 +27,7 @@ class ChatRepository
     public function findByPhoneNumber( $phoneNumber )
     {
         $chat = NULL;
-        $params = [ ":phoneNumber" => $phoneNumber ];
+        $params = [ ":phoneNumber" => str_replace( "+", "", $phoneNumber ) ];
         $query = "SELECT ch.* FROM `nchats` AS `ch` JOIN `ncontacts` AS `c` ON `ch`.`entityId`=`c`.`entityId` WHERE `c`.`phoneNumber`=:phoneNumber;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
@@ -48,6 +48,19 @@ class ChatRepository
             $chat = $this->chatFromRow( $row );
         }
         return $chat;
+    }
+    
+    public function findAll()
+    {
+        $chats = [];
+        $params = [];
+        $query = "SELECT * FROM `nchats`;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        while( $row = $sth->fetch() ) {
+            $chats[] = $this->chatFromRow( $row );
+        }
+        return $chats;
     }
 
     public function locationsFor( \com\servandserv\data\bot\Chat $chat )

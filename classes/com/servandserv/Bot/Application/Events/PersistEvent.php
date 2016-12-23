@@ -6,6 +6,8 @@ use \com\servandserv\Bot\Domain\Model\EventRepository;
 use \com\servandserv\Bot\Domain\Model\Events\Subscriber;
 use \com\servandserv\Bot\Domain\Model\Events\Event;
 use \com\servandserv\Bot\Domain\Model\Events\EventStore;
+use \com\servandserv\Bot\Domain\Model\Events\ErrorOccuredEvent;
+use \com\servandserv\happymeal\errors\Error;
 
 class PersistEvent implements Subscriber
 {
@@ -29,7 +31,9 @@ class PersistEvent implements Subscriber
             $this->rep->commit();
         } catch( \Exception $e ) {
             $this->rep->rollback();
-            error_log( $e->getMessage().' file '.__FILE__.' line '.__LINE__ );
+            $event->getPubSub()->publish( new ErrorOccuredEvent(
+                ( new Error() )->setDescription( $e->getMessage()." in ".$e->getFile()." on ".$e->getLine() )
+            ));
             throw new \Exception( "Storage error", 500 );
         }
     }
