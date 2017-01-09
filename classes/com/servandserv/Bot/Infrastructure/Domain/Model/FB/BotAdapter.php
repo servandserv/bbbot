@@ -6,6 +6,7 @@ use \com\servandserv\Bot\Domain\Model\BotPort;
 use \com\servandserv\Bot\Domain\Model\CurlClient;
 use \com\servandserv\data\bot\Updates;
 use \com\servandserv\data\bot\Update;
+use \com\servandserv\data\bot\UpdateEventType;
 use \com\servandserv\data\bot\Request;
 use \com\servandserv\data\bot\Chat;
 use \com\servandserv\data\bot\Message;
@@ -76,7 +77,7 @@ class BotAdapter implements BotPort
                     // todo
                     //if( isset( $messaging["delivery"] ) || isset( $messaging["read"] ) ) continue;
                     if( isset( $messaging["delivery"] ) ) {
-                        $up->setEvent( "MessageDelivered" );
+                        $up->setEvent( UpdateEventType::_DELIVERED );
                         $del = new Delivery();
                         if( isset( $messaging["delivery"]["mids"] ) && is_array( $messaging["delivery"]["mids"] ) ) {
                             foreach( $messaging["delivery"]["mids"] as $mid ) {
@@ -88,7 +89,7 @@ class BotAdapter implements BotPort
                         $up->setDelivery( $del );
                     }
                     if( isset( $messaging["read"] ) ) {
-                        $up->setEvent( "MessageRead" );
+                        $up->setEvent( UpdateEventType::_READ );
                         $read = new Read();
                         /**
                         if( isset( $messaging["read"]["mids"] ) && is_array( $messaging["read"]["mids"] ) ) {
@@ -102,7 +103,7 @@ class BotAdapter implements BotPort
                         $up->setRead( $read );
                     }
                     if( isset( $messaging["message"] ) ) {
-                        $up->setEvent( "MessageReceived" );
+                        $up->setEvent( UpdateEventType::_RECEIVED );
                         $m = $messaging["message"];
                         // нашли сообщение
                         $message = new Message();
@@ -123,7 +124,7 @@ class BotAdapter implements BotPort
                     }
                     $up->setChat( $chat );
                     if( isset( $messaging["postback"] ) ) {
-                        $up->setEvent( "CallbackReceived" );
+                        $up->setEvent( UpdateEventType::_POSTBACK );
                         $command = new Command();
                         $command->setName( substr($messaging["postback"]["payload"], 1 ) )->setArguments( "" );
                         $up->setCommand( $command );

@@ -12,6 +12,7 @@ use \com\servandserv\data\bot\Message;
 use \com\servandserv\data\bot\Location;
 use \com\servandserv\data\bot\Contact;
 use \com\servandserv\data\bot\Command;
+use \com\servandserv\data\bot\UpdateEventType;
 
 class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
 {
@@ -72,6 +73,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     {
         $up = ( new Update() )->setId( $tup->getUpdate_id() )->setContext( self::CONTEXT );
         $up->setChat( ( new Chat() )->setContext( self::CONTEXT ) );
+        $up->setEvent( UpdateEventType::_RECEIVED );
         $this->fromCallbackQueryType( $tup->getCallback_query(), $up );
         $this->fromMessageType( $tup->getMessage(), $up );
         
@@ -85,6 +87,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         $com = ( new Command() )->setName( $cbq->getData() );
         $this->fromUserType( $cbq->getFrom(), $up->getChat() );
         $up->setCommand( $com );
+        $up->setEvent( UpdateEventType::_POSTBACK );
     }
     
     private function fromUserType( \org\telegram\data\bot\UserType $from = NULL, Chat $chat )
