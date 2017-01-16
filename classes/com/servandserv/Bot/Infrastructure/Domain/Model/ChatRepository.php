@@ -7,6 +7,11 @@ class ChatRepository
     implements \com\servandserv\Bot\Domain\Model\ChatRepository
 {
 
+    const DESC = "DESC";
+    const ASC = "ASC";
+    const START = 0;
+    const COUNT = 100;
+
     public function findByKeys( array $keys ) 
     {
         $chat = NULL;
@@ -54,7 +59,7 @@ class ChatRepository
     {
         $chats = [];
         $params = [];
-        $query = "SELECT * FROM `nchats`;";
+        $query = "SELECT * FROM `nchats` ORDER BY `updated` DESC;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
@@ -93,16 +98,19 @@ class ChatRepository
         return $chat;
     }
     
-    public function commandsFor( \com\servandserv\data\bot\Chat $chat )
+    public function commandsFor( \com\servandserv\data\bot\Chat $chat, $order = self::DESC, $start = self::START, $count = self::COUNT )
     {
         $params = [ ":entityId" => $this->getEntityId( [$chat->getId(), $chat->getContext()] )];
-        $query = "SELECT * FROM `ncommands` WHERE `entityId`=:entityId ORDER BY `updated` DESC;";
+        $limit = "";
+        if( $count ) $limit = " LIMIT $start,".strval( $start + $count );
+        $query = "SELECT * FROM `ncommands` WHERE `entityId`=:entityId ORDER BY `updated` $order $limit;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
+        $coms = [];
         while( $row = $sth->fetch() ) {
-            $loc = new \com\servandserv\data\bot\Command();
-            $loc->fromMarkupArray( $row );
-            $chat->setCommand( $loc );
+            $com = new \com\servandserv\data\bot\Command();
+            $com->fromMarkupArray( $row );
+            $chat->setCommand( $com );
         }
         
         return $chat;

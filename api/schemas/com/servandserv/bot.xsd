@@ -64,7 +64,7 @@
             <xsd:sequence>
                 <xsd:element name="id" type="xsd:string" />
                 <xsd:element name="dt" type="xsd:integer" />
-                <xsd:element name="text" type="xsd:string" />
+                <xsd:element name="text" type="xsd:string" minOccurs="0" />
                 <xsd:element name="UID" type="xsd:string" minOccurs="0" />
                 <xsd:element ref="User" minOccurs="0" />
                 <xsd:element ref="Contact" minOccurs="0" />
@@ -90,6 +90,7 @@
                 <xsd:element name="alias" type="xsd:string" minOccurs="0" />
                 <xsd:element name="arguments" type="xsd:string" minOccurs="0" />
                 <xsd:element name="comments" type="xsd:string" minOccurs="0" />
+                <xsd:element name="updated" type="xsd:string" minOccurs="0" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
