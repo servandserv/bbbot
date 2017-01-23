@@ -75,7 +75,20 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         $up->setChat( ( new Chat() )->setContext( self::CONTEXT ) );
         $up->setEvent( UpdateEventType::_RECEIVED );
         $this->fromCallbackQueryType( $tup->getCallback_query(), $up );
-        $this->fromMessageType( $tup->getMessage(), $up );
+        // various types of message
+        $msg = NULL;
+        if( $tup->getMessage() ) {
+            $msg = $tup->getMessage();
+        } elseif( $tup->getEdited_message() ) {
+            $msg = $tup->getEdited_message();
+        } elseif( $tup->getChannel_post() ) {
+            $msg = $tup->getChannel_post();
+        } elseif( $tup->getEdited_channel_post() ) {
+            $msg = $tup->getEdited_channel_post();
+        }
+        if( $msg ) {
+            $this->fromMessageType( $msg, $up );
+        }
         
         return $up;
     }
