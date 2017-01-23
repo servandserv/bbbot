@@ -21,7 +21,7 @@
 	        <xsd:sequence>
 	            <xsd:element name="id" type="xsd:string" />
 	            <xsd:element name="context" type="contextType" />
-	            <xsd:element name="event" type="xsd:string" />
+	            <xsd:element name="event" type="updateEventType" />
 	            <xsd:element ref="Chat" minOccurs="0" />
 	            <xsd:element ref="Message" minOccurs="0" />
                 <xsd:element ref="Command" minOccurs="0" />
@@ -173,6 +173,7 @@
 	        <xsd:sequence>
 	            <xsd:element name="href" type="xsd:string" />
 	            <xsd:element name="alt" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="role" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="content" type="contentType" default="text/html" />
 	        </xsd:sequence>
 	    </xsd:complexType>
@@ -186,8 +187,8 @@
 	            <xsd:element name="outerId" type="xsd:ID" minOccurs="0" />
 	            <xsd:element name="json" type="xsd:string" />
 	            <xsd:element name="watermark" type="core:timestamp" />
-	            <xsd:element name="delivered" type="core:timestamp" />
-	            <xsd:element name="read" type="core:timestamp" />
+	            <xsd:element name="delivered" type="core:timestamp" minOccurs="0" />
+	            <xsd:element name="read" type="core:timestamp" minOccurs="0" />
 	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>
@@ -214,6 +215,15 @@
 	        <xsd:enumeration value="image/png" />
 	        <xsd:enumeration value="image/jpeg" />
 	        <xsd:enumeration value="application/pdf" />
+	    </xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="updateEventType">
+	    <xsd:restriction base="xsd:string">
+	        <xsd:enumeration value="RECEIVED" />
+	        <xsd:enumeration value="DELIVERED" />
+	        <xsd:enumeration value="READ" />
+	        <xsd:enumeration value="POSTBACK" />
 	    </xsd:restriction>
 	</xsd:simpleType>
     
