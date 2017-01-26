@@ -2,11 +2,14 @@
 
 namespace com\servandserv\Bot\Application\Events;
 
+use \com\servandserv\happymeal\errors\Error;
 use \com\servandserv\data\bot\Update;
 use \com\servandserv\Bot\Application\ServiceLocator;
 use \com\servandserv\Bot\Domain\Model\Events\Subscriber;
 use \com\servandserv\Bot\Domain\Model\Events\Publisher;
 use \com\servandserv\Bot\Domain\Model\Events\Event;
+use \com\servandserv\Bot\Domain\Model\Events\UserNotFoundOccuredEvent;
+use \com\servandserv\Bot\Domain\Model\Events\ErrorOccuredEvent;
 use \com\servandserv\Bot\Infrastructure\AsyncLazy;
 use \com\servandserv\data\bot\Commands;
 use \com\servandserv\data\bot\Command;
@@ -42,30 +45,35 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
     
     public function run( $args )
     {
-        //try {
-        
+        $pubsub = $args["event"]->getPubSub();
+        try {
+            
             $sl = \Locator::getInstance();
         
             $this->addCommands( $args["commands"] );
             $update = $args["event"]->getUpdate();
             foreach( $this->commands as $className ) {
                 if( class_exists( $className ) && call_user_func_array( $className."::fit", [ $update, $this ] ) ) {
-                    $this->execute( $className, $update, $sl, $args["event"]->getPubSub() );
+                    $this->execute( $className, $update, $sl, $pubsub );
                 }
             }
             
             // и закроем асинхронную часть
             $this->setResult( TRUE );
             $this->close();
-
-        //} catch( \Exception $e ) {
+        } catch( \UserNotFoundException $e ) {
+            $this->setResult( TRUE );
+            $this->close();
+            $pubsub->publish( new UserNotFoundOccuredEvent( $update->getChat() ) );
+            throw new \Exception( $e->getMessage(), $e->getCode() );
+        } catch( \Exception $e ) {
             // что-то не задалось
             // закроем асинхронную часть
             // глобальную блокировку говорят отпустит само
-            //$this->setResult( TRUE );
-            //$this->close();
-        //    throw new \Exception( $e->getMessage(), $e->getCode() );
-        //}
+            $this->setResult( TRUE );
+            $this->close();
+            throw new \Exception( $e->getMessage(), $e->getCode() );
+        }
     }
     
     private function execute( $className, Update $update, ServiceLocator $sl, Publisher $pubsub )

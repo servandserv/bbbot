@@ -3,6 +3,7 @@
 namespace com\servandserv\Bot\Infrastructure\HTTP;
 
 use \com\servandserv\Bot\Domain\Model\CurlClient;
+use \com\servandserv\Bot\Domain\Model\CurlException;
 use \com\servandserv\data\curl\Request;
 
 class GuzzleHttpClient implements CurlClient
@@ -21,8 +22,12 @@ class GuzzleHttpClient implements CurlClient
         foreach( $req->getHeader() as $header ) {
             $headers[$header->getName()] = $header->getValue();
         }
-        $this->resp = $this->cli->request( $req->getMethod(), $req->getQuery(), [ "headers" => $headers, "body" => $req->getContent() ] );
-        return $this;
+        try {
+            $this->resp = $this->cli->request( $req->getMethod(), $req->getQuery(), [ "headers" => $headers, "body" => $req->getContent() ] );
+            return $this;
+        } catch( \Exception $e ) {
+            throw new CurlException( $e->getMessage(), $e->getCode() );
+        }
     }
     
     public function getBody()

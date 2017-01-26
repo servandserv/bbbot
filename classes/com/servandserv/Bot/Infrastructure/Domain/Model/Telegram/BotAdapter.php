@@ -2,7 +2,11 @@
 
 namespace com\servandserv\Bot\Infrastructure\Domain\Model\Telegram;
 
+use \com\servandserv\Bot\Domain\Model\UserNotFoundException;
 use \com\servandserv\Bot\Domain\Model\CurlClient;
+use \com\servandserv\Bot\Domain\Model\CurlException;
+use \com\servandserv\Bot\Domain\Model\Events\Publisher;
+use \com\servandserv\Bot\Domain\Model\Events\MessengerErrorOccuredEvent;
 use \org\telegram\data\bot\Update as TelegramUpdate;
 use \com\servandserv\data\bot\Updates;
 use \com\servandserv\data\bot\Update;
@@ -39,20 +43,32 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         $cl = new \ReflectionClass( $clName );
         $view = call_user_func_array( array( &$cl, 'newInstance' ), $args );
         
-        $requests = $view->getRequests();
-        foreach( $requests as $request ) {
-            $timer->next();// следующая отправка
-            $watermark = round( microtime( true ) * 1000 );
-            $resp = $this->cli->request( $request );
-            if( $json = json_decode( $resp->getBody(), TRUE ) ) {
-                if( isset( $json["result"] ) && isset( $json["result"]["message_id"] ) ) {
-                    $ret = ( new \com\servandserv\data\bot\Request() )
-                        ->setId( $json["result"]["message_id"] )
-                        ->setJson( $request->getContent() )
-                        ->setWatermark( $watermark );
-                    if( $cb ) $cb( $ret );
+        try {
+            $requests = $view->getRequests();
+            foreach( $requests as $request ) {
+                $timer->next();// следующая отправка
+                $watermark = round( microtime( true ) * 1000 );
+                $resp = $this->cli->request( $request );
+                if( $json = json_decode( $resp->getBody(), TRUE ) ) {
+                    if( isset( $json["result"] ) && isset( $json["result"]["message_id"] ) ) {
+                        $ret = ( new \com\servandserv\data\bot\Request() )
+                            ->setId( $json["result"]["message_id"] )
+                            ->setJson( $request->getContent() )
+                            ->setWatermark( $watermark );
+                        if( $cb ) $cb( $ret );
+                    }
                 }
             }
+        } catch( CurlException $e ) {
+            switch( $e->getCode() ) {
+                case "400":
+                case "401":
+                case "403":
+                    throw new UserNotFoundException( $e->getMessage(), $e->getCode() );
+                    break;
+                default:
+                    throw new \Exception( $e->getMessage(), $e->getCode() );
+            }        
         }
     }
     
