@@ -2,12 +2,18 @@
 
 namespace com\servandserv\Bot\Infrastructure\Domain\Model;
 
+use \com\servandserv\data\bot\Update;
+
 class UpdateRepository 
     extends \com\servandserv\Bot\Infrastructure\Persistence\PDO\Repository
     implements \com\servandserv\Bot\Domain\Model\UpdateRepository
 {
 
-    public function register( \com\servandserv\data\bot\Update $up )
+    const CREATED = 1;
+    const EXECUTED = 2;
+    const POSTPONED = 3;
+
+    public function register( Update $up )
     {
         $entityId = $this->getEntityIdFromUpdate( $up );
         $chat = $up->getChat();
@@ -100,7 +106,7 @@ class UpdateRepository
             ":entityId" => $entityId,
             ":context" => $chat->getContext(),
             ":update" => $up->toXmlStr(),
-            ":status" => 1
+            ":status" => self::CREATED
         ];
         $query = "";
         foreach( $params as $col => $val ) {
@@ -113,4 +119,30 @@ class UpdateRepository
         return $entityId;
     }
     
+    public function archive( $autoid, Update $up )
+    {
+        $params = [ 
+            "autoid" => $autoid,
+            "status" => $up->getStatus(),
+            "xmlstr" => $up->toXmlStr()
+        ];
+        $query = "UPDATE `nupdates` SET `status`=:status, `update`=:xmlstr WHERE `autoid`=:autoid;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+    }
+    
+    public function findAllActive()
+    {
+        $updates = [];
+        $params = [ "status" => self::CREATED ];
+        $query = "SELECT `autoid`, `update` FROM `nupdates` WHERE `status`=:status;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        while( $row = $sth->fetch() ) {
+            $up = ( new Update() )->fromXmlStr( $row["update"] );
+            $updates[$row["autoid"]] = $up;
+        }
+        
+        return $updates;
+    }
 }

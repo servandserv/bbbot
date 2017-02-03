@@ -80,6 +80,9 @@ abstract class StoredEvent implements Event
 		return $this;
     }
     
+    abstract public function toReadableStr();
+    
     abstract protected function bodyToXmlWriter( \XMLWriter &$xw );
     abstract protected function bodyFromXmlReader( \XMLReader &$xr );
+    
 }

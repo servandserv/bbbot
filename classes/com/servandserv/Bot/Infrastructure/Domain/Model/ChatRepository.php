@@ -18,9 +18,10 @@ class ChatRepository
         $params = [
             ":entityId"=>$this->getEntityId( $keys )
         ];
-        $query = "SELECT `ch`.*, `u`.* FROM `nchats` AS `ch`";
-        $query .= " LEFT JOIN `nusers` AS `u` ON `u`.`entityId`=`ch`.`entityId`";
-        $query .= " WHERE `ch`.`entityId`=:entityId;";
+        //$query = "SELECT `ch`.*, `u`.* FROM `nchats` AS `ch`";
+        //$query .= " LEFT JOIN `nusers` AS `u` ON `u`.`entityId`=`ch`.`entityId`";
+        //$query .= " WHERE `ch`.`entityId`=:entityId;";
+        $query = "SELECT * FROM `nchats` WHERE `entityId`=:entityId;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {

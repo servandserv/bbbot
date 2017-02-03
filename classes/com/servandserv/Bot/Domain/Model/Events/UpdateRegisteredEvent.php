@@ -21,4 +21,9 @@ class UpdateRegisteredEvent extends InMemoryEvent
     {
         return $this->update;
     }
+    
+    public function toReadableStr()
+    {
+        return $this->update->toXmlStr();
+    }
 }

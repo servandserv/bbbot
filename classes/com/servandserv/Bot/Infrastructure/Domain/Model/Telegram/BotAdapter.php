@@ -7,6 +7,7 @@ use \com\servandserv\Bot\Domain\Model\CurlClient;
 use \com\servandserv\Bot\Domain\Model\CurlException;
 use \com\servandserv\Bot\Domain\Model\Events\Publisher;
 use \com\servandserv\Bot\Domain\Model\Events\MessengerErrorOccuredEvent;
+use \com\servandserv\Bot\Domain\Service\Synchronizer;
 use \org\telegram\data\bot\Update as TelegramUpdate;
 use \com\servandserv\data\bot\Updates;
 use \com\servandserv\data\bot\Update;
@@ -21,22 +22,23 @@ use \com\servandserv\data\bot\UpdateEventType;
 class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
 {
     const CONTEXT = "org.telegram";
-    const LIMIT_PER_SECOND = 30;
 
     protected $cli;
     protected $NS;
+    protected $syn;
     protected $messagesPerSecond;
     protected static $updates;
 
-    public function __construct( CurlClient $cli, $NS )
+    public function __construct( CurlClient $cli, $NS, Synchronizer $syn )
     {
         $this->cli = $cli;
         $this->NS = $NS;
+        $this->syn = $syn;
     }
     
     public function makeRequest( $name, array $args, callable $cb = NULL )
     {
-        $timer = \com\servandserv\Bot\Domain\Service\Timer::getInstance( intval( self::LIMIT_PER_SECOND *0.75 ) );
+        //$timer = \com\servandserv\Bot\Domain\Service\Timer::getInstance( intval( self::LIMIT_PER_SECOND *0.75 ) );
         
         $clName = $this->NS."\\".$name;
         if( !class_exists( $clName ) ) throw new \Exception( "Class for VIEW name \"$name\" not exists." );
@@ -46,8 +48,8 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         try {
             $requests = $view->getRequests();
             foreach( $requests as $request ) {
-                $timer->next();// следующая отправка
-                $watermark = round( microtime( true ) * 1000 );
+                $this->syn->next( self::CONTEXT );// следующая отправка
+                $watermark = intval( microtime( true ) * 1000 );
                 $resp = $this->cli->request( $request );
                 if( $json = json_decode( $resp->getBody(), TRUE ) ) {
                     if( isset( $json["result"] ) && isset( $json["result"]["message_id"] ) ) {

@@ -51,12 +51,12 @@ class RegisterUpdates
                     }
                 }
             }
-            $port->response();
         } catch( \Exception $e ) {
             $this->pubsub->publish( new ErrorOccuredEvent(
                 ( new Error() )->setDescription( $e->getMessage() . " in ". $e->getFile() . " on " . $e->getLine() )
             ));
             //silence
         }
+        $port->response();
     }
 }

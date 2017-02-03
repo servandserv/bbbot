@@ -16,4 +16,5 @@ abstract class InMemoryEvent implements Event
         return $this->pubsub;
     }
     abstract public function occuredOn();
+    abstract public function toReadableStr();
 }

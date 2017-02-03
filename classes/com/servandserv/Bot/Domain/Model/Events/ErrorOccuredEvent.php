@@ -2,7 +2,6 @@
 
 namespace com\servandserv\Bot\Domain\Model\Events;
 
-use \com\servandserv\data\bot\Update;
 use \com\servandserv\happymeal\XMLAdaptor;
 use \com\servandserv\happymeal\XML\Schema\AnyType;
 
@@ -20,9 +19,15 @@ class ErrorOccuredEvent extends StoredEvent
         return $this->any;
     }
     
+    public function toReadableStr()
+    {
+        return $this->any->toXmlStr();
+    }
+    
     public function bodyFromXmlReader( \XMLReader &$xr )
     {
-        if( $xr->localName == $err::ROOT && $xr->namespaceURI == $err::NS ) {
+        $any = $this->any;
+        if( $xr->localName == $any::ROOT && $xr->namespaceURI == $any::NS ) {
             $this->any->fromXmlReader( $xr );
         }
     }

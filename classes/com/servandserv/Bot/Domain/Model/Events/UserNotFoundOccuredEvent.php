@@ -41,4 +41,9 @@ class UserNotFoundOccuredEvent extends InMemoryEvent
     {
         return $this->occuredOn;
     }
+    
+    public function toReadableStr()
+    {
+        return $this->chat->toXmlStr();
+    }
 }

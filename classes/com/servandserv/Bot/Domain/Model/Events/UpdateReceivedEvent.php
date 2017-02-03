@@ -19,6 +19,11 @@ class UpdateReceivedEvent extends StoredEvent
         return $this->update;
     }
     
+    public function toReadableStr()
+    {
+        return $this->update->toXmlStr();
+    }
+    
     public function bodyFromXmlReader( \XMLReader &$xr )
     {
         $up = new Update();
