@@ -35,7 +35,7 @@ abstract class AbstractCommand
             $com = new \com\servandserv\data\bot\Command();
             if( isset( static::$command ) ) $com->setName( static::$command );
             if( isset( $m[1] ) ) $com->setAlias( $m[1] );
-            if( isset( $m[2] ) ) $com->setArguments( $m[2] );
+            if( isset( $m[2] ) ) $com->setArguments( trim( $m[2] ) );
             $up->setCommand( $com );
             
             return TRUE;

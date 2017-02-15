@@ -50,6 +50,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
             foreach( $requests as $request ) {
                 $this->syn->next( self::CONTEXT );// следующая отправка
                 $watermark = intval( microtime( true ) * 1000 );
+                
                 $resp = $this->cli->request( $request );
                 if( $json = json_decode( $resp->getBody(), TRUE ) ) {
                     if( isset( $json["result"] ) && isset( $json["result"]["message_id"] ) ) {
@@ -60,17 +61,19 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
                         if( $cb ) $cb( $ret );
                     }
                 }
+                
             }
+            //trigger_error(print_r(json_decode($request->getContent()),true));
         } catch( CurlException $e ) {
+            $str = isset( $request ) ? $request->getContent() : "";
             switch( $e->getCode() ) {
-                case "400":
                 case "401":
                 case "403":
-                    throw new UserNotFoundException( $e->getMessage(), $e->getCode() );
+                    throw new UserNotFoundException( $e->getMessage().":".$str, $e->getCode() );
                     break;
                 default:
-                    throw new \Exception( $e->getMessage(), $e->getCode() );
-            }        
+                    throw new \Exception( $e->getMessage().":".$str, $e->getCode() );
+            }
         }
     }
     
@@ -79,7 +82,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         if( NULL == self::$updates ) {
             self::$updates = ( new Updates() )->setContext( self::CONTEXT );
             $in = file_get_contents( "php://input" );
-            if( !$json = json_decode( $in, TRUE ) ) throw new \Exception( "Error on decode update json in ".__FILE__." on line ".__LINE__ );
+            if( !$json = json_decode( $in, TRUE ) ) throw new \Exception( "Error on decode update json in ".__FILE__." on line ".__LINE__. "\n input $in" );
             $up = $this->translateToUpdate( ( new TelegramUpdate() )->fromJSONArray( $json ) );
             self::$updates->setUpdate( $up );
         }
@@ -87,7 +90,7 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         return self::$updates;
     }
     
-    private function translateToUpdate( \org\telegram\data\bot\Update $tup )
+    public function translateToUpdate( \org\telegram\data\bot\Update $tup )
     {
         $up = ( new Update() )->setId( $tup->getUpdate_id() )->setContext( self::CONTEXT );
         $up->setChat( ( new Chat() )->setContext( self::CONTEXT ) );
@@ -181,7 +184,12 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     {
         if( !$ct ) return NULL;
         $c = ( new Contact() )
-            ->setPhoneNumber( str_replace( ["+","(",")","[","]","-"], "", $ct->getPhone_number() ) );
+            ->setPhoneNumber( str_replace( ["+","(",")","[","]","-"], "", $ct->getPhone_number() ) )
+            ->setUser( ( new User() )
+                ->setId( $ct->getUser_id() )
+                ->setFirstName( $ct->getFirst_name() )
+                ->setLastName( $ct->getLast_name() )
+            );
         $chat->setContact( $c );
         $m->setContact( $c );
     }

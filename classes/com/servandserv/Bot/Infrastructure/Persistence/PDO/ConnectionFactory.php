@@ -39,7 +39,7 @@ class ConnectionFactory
             ":host=".$url["host"].
             (isset($url["port"])?":".$url["port"]:"").
             ";dbname=".substr($url["path"],1).
-            ";charset=utf8";
+            ";charset=utf8mb4";
     }
     
 }

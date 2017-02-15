@@ -9,6 +9,7 @@ use \com\servandserv\Bot\Domain\Model\Events\Subscriber;
 use \com\servandserv\Bot\Domain\Model\Events\Publisher;
 use \com\servandserv\Bot\Domain\Model\Events\Event;
 use \com\servandserv\Bot\Domain\Model\Events\UserNotFoundOccuredEvent;
+use \com\servandserv\Bot\Domain\Model\UserNotFoundException;
 use \com\servandserv\Bot\Domain\Model\Events\ErrorOccuredEvent;
 use \com\servandserv\Bot\Infrastructure\AsyncLazy;
 use \com\servandserv\data\bot\Commands;
@@ -19,20 +20,18 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
 {
 
     protected $commands;
-    protected $duration;
 
-    public function __construct( $id = NULL, array $commands = NULL, $duration = NULL )
+    public function __construct( $id = NULL, array $commands = NULL )
     {
         if( is_array( $commands ) ) {
             $this->commands = $commands;
         }
-        $this->duration = $duration;
         parent::__construct( $id );
     }
 
     public function isSubscribedTo( Event $event )
     {
-        return is_a( $event, 'com\servandserv\Bot\Domain\Model\Events\UpdateRegisteredEvent' ) ? TRUE : FALSE;
+        return ( $event instanceof \com\servandserv\Bot\Domain\Model\Events\UpdatesRegisteredEvent );
     }
     
     public function handle( Event $event )
@@ -88,7 +87,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
             //пытаемся заблокировать сами
             if ( !flock( $lockfp, LOCK_EX | LOCK_NB ) ) {
                 fclose( $lockfp );
-                throw new \Exception( "lock file $lockfile error in " . __FILE__ . " on " . __LINE__ );
+                trigger_error( "lock file $lockfile error in " . __FILE__ . " on " . __LINE__ );
             }
             
             $sl = \Locator::getInstance();

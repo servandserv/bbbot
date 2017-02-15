@@ -8,7 +8,7 @@ use \com\servandserv\data\bot\Update;
 use \com\servandserv\happymeal\ErrorsHandler;
 use \com\servandserv\happymeal\errors\Error;
 use \com\servandserv\Bot\Domain\Model\Events\Publisher;
-use \com\servandserv\Bot\Domain\Model\Events\UpdateRegisteredEvent;
+use \com\servandserv\Bot\Domain\Model\Events\UpdatesRegisteredEvent;
 use \com\servandserv\Bot\Domain\Model\Events\ErrorOccuredEvent;
 
 class RegisterUpdates
@@ -25,9 +25,6 @@ class RegisterUpdates
 
     public function execute( BotPort $port )
     {
-        // todo validate client
-        //if( $_SESSION[session_name()] == "Unknown" ) $this->port->throwException( "Forbidden", 403 );
-        
         // отлавливаем все ошибки и просто тупо молчим в ответ, мессенджеры всегда правы
         try {
             // validate request
@@ -41,7 +38,6 @@ class RegisterUpdates
                         $this->ur->beginTransaction();
                         $this->ur->register( $update );
                         $this->ur->commit();
-                        $this->pubsub->publish( new UpdateRegisteredEvent( $update ) );
                     } catch( \Exception $e ) {
                         $this->ur->rollback();
                         $this->pubsub->publish( new ErrorOccuredEvent(
@@ -51,6 +47,8 @@ class RegisterUpdates
                     }
                 }
             }
+            //делаем это один раз
+            $this->pubsub->publish( new UpdatesRegisteredEvent( $port->getUpdates() ) );
         } catch( \Exception $e ) {
             $this->pubsub->publish( new ErrorOccuredEvent(
                 ( new Error() )->setDescription( $e->getMessage() . " in ". $e->getFile() . " on " . $e->getLine() )

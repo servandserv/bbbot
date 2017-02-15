@@ -62,12 +62,17 @@ class UpdateRepository
             $sth = $this->conn->prepare( $query );
             $sth->execute( $location );
         }
-        if( $msg && $msg->getContact() ) {
-            $params[":phoneNumber"] = $msg->getContact()->getPhoneNumber();
+        // check if contact id equal to chat id !!!!!!
+        // user can send any contact from his contact book
+        // @todo grab and create new user if contact user id is different
+        if( $msg && $msg->getContact() && $msg->getContact()->getUser()->getId() == $chat->getId() ) {
+        
+            $num = $msg->getContact()->getPhoneNumber();
+            $params[":phoneNumber"] = $num;
             
             $contact = [
                 ":entityId" => $entityId,
-                ":phoneNumber" => $msg->getContact()->getPhoneNumber()
+                ":phoneNumber" => $num
             ];
             $query = "";
             foreach( $contact as $col => $val ) {
@@ -139,8 +144,12 @@ class UpdateRepository
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
-            $up = ( new Update() )->fromXmlStr( $row["update"] );
-            $updates[$row["autoid"]] = $up;
+            try {
+                $up = ( new Update() )->fromXmlStr( $row["update"] );
+                $updates[$row["autoid"]] = $up;
+            } catch( \Exception $e ) {
+                //temporary silent
+            }
         }
         
         return $updates;

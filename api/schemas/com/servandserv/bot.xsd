@@ -123,7 +123,7 @@
 	<xsd:element name="User">
 	    <xsd:complexType>
 	        <xsd:sequence>
-	            <xsd:element name="id" type="xsd:string" />
+	            <xsd:element name="id" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="firstName" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="lastName" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="middleName" type="xsd:string" minOccurs="0" />
@@ -166,6 +166,7 @@
 	    <xsd:complexType>
 	        <xsd:sequence>
 	            <xsd:element name="phoneNumber" type="core:phoneType" />
+	            <xsd:element ref="User" />
 	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>

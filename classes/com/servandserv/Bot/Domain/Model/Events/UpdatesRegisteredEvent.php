@@ -2,13 +2,13 @@
 
 namespace com\servandserv\Bot\Domain\Model\Events;
 
-use \com\servandserv\data\bot\Update;
+use \com\servandserv\data\bot\Updates;
 
-class UpdateRegisteredEvent extends InMemoryEvent
+class UpdatesRegisteredEvent extends InMemoryEvent
 {
-    public function __construct( Update $update )
+    public function __construct( Updates $updates )
     {
-        $this->update = $update;
+        $this->updates = $updates;
         $this->occuredOn = intval( microtime( true ) * 1000 );
     }
     
@@ -17,13 +17,13 @@ class UpdateRegisteredEvent extends InMemoryEvent
         return $this->occuredOn;
     }
     
-    public function getUpdate()
+    public function getUpdates()
     {
-        return $this->update;
+        return $this->updates;
     }
     
     public function toReadableStr()
     {
-        return $this->update->toXmlStr();
+        return $this->updates->toXmlStr();
     }
 }

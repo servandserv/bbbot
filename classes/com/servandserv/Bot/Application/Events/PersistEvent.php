@@ -21,7 +21,8 @@ class PersistEvent implements Subscriber
 
     public function isSubscribedTo( Event $event )
     {
-        return is_a( $event, 'com\servandserv\Bot\Domain\Model\Events\StoredEvent' );
+        return ( $event instanceof \com\servandserv\Bot\Domain\Model\Events\StoredEvent );
+        //return is_a( $event, 'com\servandserv\Bot\Domain\Model\Events\StoredEvent' );
     }
     public function handle( Event $event )
     {
