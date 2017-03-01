@@ -9,27 +9,13 @@ use \com\servandserv\happymeal\XML\Schema\AnyType;
 class UserNotFoundOccuredEvent extends InMemoryEvent
 {
 
-    private $code;
-    private $message;
     private $chat;
 
-    public function __construct( $code, $message, Chat $chat )
+    public function __construct( Chat $chat )
     {
-        $this->code = $code;
-        $this->message = $message;
         $this->chat = $chat;
         $this->occuredOn = intval( microtime( true ) * 1000 );
         $this->type = "UserNotFoundOccuredEvent";
-    }
-    
-    public function getCode()
-    {
-        return $this->code;
-    }
-    
-    public function getMessage()
-    {
-        return $this->message;
     }
     
     public function getChat()
@@ -44,6 +30,6 @@ class UserNotFoundOccuredEvent extends InMemoryEvent
     
     public function toReadableStr()
     {
-        return $this->chat->toXmlStr();
+        return $this->chat->toJSON();
     }
 }

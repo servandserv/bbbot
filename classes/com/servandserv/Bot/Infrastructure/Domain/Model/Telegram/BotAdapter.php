@@ -67,6 +67,13 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
         } catch( CurlException $e ) {
             $str = isset( $request ) ? $request->getContent() : "";
             switch( $e->getCode() ) {
+                case "400":
+                    if( strstr( $e->getMessage(), "chat not found" ) ) {
+                        throw new UserNotFoundException( $e->getMessage().":".$str, $e->getCode() );
+                    } else {
+                        throw new \Exception( $e->getMessage().":".$str, $e->getCode() );
+                    }
+                    break;
                 case "401":
                 case "403":
                     throw new UserNotFoundException( $e->getMessage().":".$str, $e->getCode() );
@@ -118,7 +125,9 @@ class BotAdapter implements \com\servandserv\Bot\Domain\Model\BotPort
     private function fromCallbackQueryType( \org\telegram\data\bot\CallbackQueryType $cbq = NULL, Update $up )
     {
         if( !$cbq ) return NULL;
-        $com = ( new Command() )->setName( $cbq->getData() );
+        $com = ( new Command() )
+            ->setId( $cbq->getId() )
+            ->setName( $cbq->getData() );
         $this->fromUserType( $cbq->getFrom(), $up->getChat() );
         $up->setCommand( $com );
         $up->setEvent( UpdateEventType::_POSTBACK );

@@ -38,6 +38,8 @@ class Synchronizer
         $tsFile = $tempDir.DIRECTORY_SEPARATOR.$unique.".ts";
         if ( !is_dir( $tempDir ) ) {
             mkdir( $tempDir, 0770 );
+        }
+        if( !file_exists( $tsFile ) ) {
             file_put_contents( $tsFile, 0 );
         }
         $start = time();
