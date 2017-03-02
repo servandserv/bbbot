@@ -87,6 +87,7 @@
     <xsd:element name="Command">
         <xsd:complexType>
             <xsd:sequence>
+                <xsd:element name="id" type="xsd:string" minOccurs="0" />
                 <xsd:element name="name" type="xsd:string" minOccurs="0" />
                 <xsd:element name="alias" type="xsd:string" minOccurs="0" />
                 <xsd:element name="arguments" type="xsd:string" minOccurs="0" />
@@ -166,7 +167,7 @@
 	    <xsd:complexType>
 	        <xsd:sequence>
 	            <xsd:element name="phoneNumber" type="core:phoneType" />
-	            <xsd:element ref="User" />
+	            <xsd:element ref="User" minOccurs="0" />
 	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>
