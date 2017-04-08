@@ -673,6 +673,7 @@ class AsyncLazy {
 
 }
 
+set_time_limit(60*10);
 /////////////////////////////////////////////////////
 if ($_SERVER["PHP_SELF"] == __FILE__ && isset($_SERVER["argv"][3])) {
     //var_dump("forked");

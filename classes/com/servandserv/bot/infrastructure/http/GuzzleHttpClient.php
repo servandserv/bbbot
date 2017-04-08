@@ -30,6 +30,24 @@ class GuzzleHttpClient implements CurlClient
         }
     }
     
+    public function getEffectiveUrl( $url, $max = 1 )
+    {
+        $res = $this->cli->request( "GET", $url, [
+            "allow_redirects" => [
+                "max" => $max,             // allow at most 10 redirects.
+                "strict" => true,      // use "strict" RFC compliant redirects.
+                "referer" => true,      // add a Referer header
+                "protocols" => ["https"], // only allow https URLs
+                "track_redirects" => true
+            ]
+        ] );
+        if( $redirect = $res->getHeaderLine("X-Guzzle-Redirect-History") ) {
+            return $redirect;
+        } else {
+            return $url;
+        }
+    }
+    
     public function getBody()
     {
         if( $this->resp ) {

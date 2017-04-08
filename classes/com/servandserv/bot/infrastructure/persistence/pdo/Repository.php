@@ -21,12 +21,12 @@ class Repository
     
     public function commit()
     {
-        $this->conn->commit();
+        try { $this->conn->commit(); } catch (\Exception $e) {}
     }
     
     public function rollback()
     {
-        $this->conn->rollback();
+        try { $this->conn->rollBack(); } catch (\Exception $e) {}
     }
     
     public function getEntityId( array $keys ) 

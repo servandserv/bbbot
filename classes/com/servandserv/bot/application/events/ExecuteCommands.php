@@ -101,11 +101,18 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
              * повторяемся пока не прочитаем все в очереди
              */
             $rep = $sl->create( "com.servandserv.bot.domain.model.UpdateRepository" );
+            //$sf = $sl->create( "com.servandserv.bot.domain.service.SentenceFactory" );
             $updates = $rep->findAllActive();
             
             while( count( $updates ) > 0 ) {
                 foreach( $updates as $autoid=>$update ) {
                     try {
+                        /**
+                        if( $update->getMessage() && $update->getMessage()->getText() ) {
+                            $s = $sf->create( $update->getMessage()->getText() );
+                            $update->setSentence( $s );
+                        }
+                        */
                         foreach( $this->commands as $className ) {
                             if( class_exists( $className ) && call_user_func_array( $className."::fit", [ $update, $this ] ) ) {
                                 $this->execute( $className, $update, $sl, $pubsub );
@@ -148,7 +155,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
     
     private function execute( $className, Update $update, ServiceLocator $sl, Publisher $pubsub )
     {
-        $port = $sl->create( "com.servandserv.bot.domain.model.BotPort", [ $sl->get( "bot" ) ] );
+        $port = $sl->create( "com.servandserv.bot.domain.model.BotPort", [ $update->getContext() ] );
         $cl = new \ReflectionClass( $className );
         $obj = call_user_func_array( array( &$cl, 'newInstance' ), [ $pubsub ] );
         $obj->execute( $update, $sl, $this->toCommandsDTO(), $port );

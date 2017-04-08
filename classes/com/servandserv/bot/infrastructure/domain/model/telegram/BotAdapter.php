@@ -6,8 +6,6 @@ use \com\servandserv\bot\domain\model\BotPort;
 use \com\servandserv\bot\domain\model\UserNotFoundException;
 use \com\servandserv\bot\domain\model\CurlClient;
 use \com\servandserv\bot\domain\model\CurlException;
-use \com\servandserv\bot\domain\model\events\Publisher;
-use \com\servandserv\bot\domain\model\events\MessengerErrorOccuredEvent;
 use \com\servandserv\bot\domain\service\Synchronizer;
 
 use \com\servandserv\happymeal\XML\Schema\AnyType;
