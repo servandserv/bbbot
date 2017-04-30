@@ -144,12 +144,8 @@ class UpdateRepository extends PDORepository implements UpdateRepositoryInterfac
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         while( $row = $sth->fetch() ) {
-            try {
-                $up = ( new Update() )->fromXmlStr( $row["update"] );
-                $updates[$row["autoid"]] = $up;
-            } catch( \Exception $e ) {
-                //temporary silent
-            }
+            $up = ( new Update() )->fromXmlStr( $row["update"] );
+            $updates[$row["autoid"]] = $up;
         }
         
         return $updates;

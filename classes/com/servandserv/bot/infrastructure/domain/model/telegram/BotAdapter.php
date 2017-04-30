@@ -79,7 +79,7 @@ class BotAdapter implements BotPort
                     if( strstr( $e->getMessage(), "chat not found" ) ) {
                         throw new UserNotFoundException( $e->getMessage().":".$str, $e->getCode() );
                     } else {
-                        throw new \Exception( $e->getMessage().":".$str, $e->getCode() );
+                        throw new \Exception( $e->getMessage().":".$str, $e->getCode(), $e );
                     }
                     break;
                 case "401":
@@ -87,7 +87,7 @@ class BotAdapter implements BotPort
                     throw new UserNotFoundException( $e->getMessage().":".$str, $e->getCode() );
                     break;
                 default:
-                    throw new \Exception( $e->getMessage().":".$str, $e->getCode() );
+                    throw new \Exception( $e->getMessage().":".$str, $e->getCode(), $e );
             }
         }
     }
@@ -99,6 +99,7 @@ class BotAdapter implements BotPort
             $in = file_get_contents( "php://input" );
             if( !$json = json_decode( $in, TRUE ) ) throw new \Exception( "Error on decode update json in ".__FILE__." on line ".__LINE__. "\n input $in" );
             $up = $this->translateToUpdate( ( new TelegramUpdate() )->fromJSONArray( $json ) );
+            $up->setRaw( $in );
             self::$updates->setUpdate( $up );
         }
         

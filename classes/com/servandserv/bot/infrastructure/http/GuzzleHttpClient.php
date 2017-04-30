@@ -26,7 +26,7 @@ class GuzzleHttpClient implements CurlClient
             $this->resp = $this->cli->request( $req->getMethod(), $req->getQuery(), [ "headers" => $headers, "body" => $req->getContent() ] );
             return $this;
         } catch( \Exception $e ) {
-            throw new CurlException( $e->getMessage(), $e->getResponse()->getStatusCode() );
+            throw new CurlException( $e->getMessage(), $e->getResponse()->getStatusCode(), $e );
         }
     }
     

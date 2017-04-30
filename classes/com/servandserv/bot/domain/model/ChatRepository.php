@@ -13,4 +13,5 @@ interface ChatRepository
     public function locationsFor( Chat $chat );
     public function contactsFor( Chat $chat );
     public function commandsFor( Chat $chat );
+    public function remove( Chat $chat );
 }

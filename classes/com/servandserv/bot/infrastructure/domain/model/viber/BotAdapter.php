@@ -3,7 +3,9 @@
 namespace com\servandserv\bot\infrastructure\domain\model\viber;
 
 use \com\servandserv\bot\domain\model\CurlClient;
+use \com\servandserv\bot\domain\model\CurlException;
 use \com\servandserv\bot\domain\model\BotPort;
+use \com\servandserv\bot\domain\model\UserNotFoundException;
 
 use \com\servandserv\happymeal\xml\schema\AnyType;
 
@@ -58,6 +60,13 @@ class BotAdapter implements BotPort
                             ->setJson( $request->getContent() )
                             ->setWatermark( $watermark );
                         if( $cb ) $cb( $ret );
+                    } else if ( array_key_exists( "status", $json ) && in_array( intval( $json["status"] ) , [ 5, 6, 7 ] ) ) {
+                        // клиент отвалился или его никогда небыло скажем об этом миру
+                        // https://developers.viber.com/api/rest-bot-api/index.html#errorCodes
+                        throw new UserNotFoundException( $json["status_message"] );
+                    } else {
+                        // неизвестная ошибка, не плохо бы посмотреть на нее
+                        throw new \Exception( $json["status_message"]." on request: ".$request->toXmlStr() );
                     }
                 }
             }
@@ -75,7 +84,7 @@ class BotAdapter implements BotPort
             // убрал проверку подписи надо с ней разбираться
             //if( !$this->checkSignature( json_encode( $json ) ) ) return self::$updates;
             $vup = ( new ViberUpdate() )->fromJSONArray( $json );
-            $up = ( new Update() )->setContext( self::CONTEXT )->setId( intval(microtime(true)*1000) );
+            $up = ( new Update() )->setContext( self::CONTEXT )->setId( intval(microtime(true)*1000) )->setRaw( $in );
             $chat = new Chat();
             switch( $vup->getEvent() ) {
                 case "webhook":
@@ -133,8 +142,13 @@ class BotAdapter implements BotPort
                         $contact = ( new Contact() )
                             ->setPhoneNumber( str_replace( ["+","(",")","[","]","-"], "", $c->getPhone_number() ) );
                         $contactuser = ( new User() )->setFirstName( $c->getUsername() );
-                        if( $this->checkId( $sender->getAvatar(), $c->getAvatar() ) ) {
-                            $contactuser->setId( $sender->getId() )->setAvatar( $c->getAvatar() );
+                        try {
+                            if( $this->checkId( $sender->getAvatar(), $c->getAvatar() ) ) {
+                                $contactuser->setId( $sender->getId() )->setAvatar( $c->getAvatar() );
+                            }
+                        } catch( CurlException $e ) {
+                            // не знаю пока что мне с этим делать
+                            // приходят ошибки vibera о недоступности аватара клиента
                         }
                         $contact->setUser( $contactuser );
                         $chat->setContact( $contact );
@@ -204,14 +218,14 @@ class BotAdapter implements BotPort
      */
     private function checkId( $senderAvatar, $contactAvatar )
     {
-        $senderAvatar = filter_var( $senderAvatar , FILTER_VALIDATE_URL );
-        $contactAvatar = filter_var( $contactAvatar, FILTER_VALIDATE_URL );
-        if( $senderAvatar && $contactAvatar ) {
-            $senderId = $this->cli->getEffectiveUrl( $senderAvatar );
-            $contactId = $this->cli->getEffectiveUrl( $contactAvatar );
+            $senderAvatar = filter_var( $senderAvatar , FILTER_VALIDATE_URL );
+            $contactAvatar = filter_var( $contactAvatar, FILTER_VALIDATE_URL );
+            if( $senderAvatar && $contactAvatar ) {
+                $senderId = $this->cli->getEffectiveUrl( $senderAvatar );
+                $contactId = $this->cli->getEffectiveUrl( $contactAvatar );
             
-            return $senderId == $contactId;
-        }
+                return $senderId == $contactId;
+            }
     }
     
 }

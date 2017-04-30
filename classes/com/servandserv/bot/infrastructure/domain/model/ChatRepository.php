@@ -124,8 +124,26 @@ class ChatRepository extends PDORepository implements ChatRepositoryInterface {
 
         return $chat;
     }
+    
+    public function remove( Chat $chat )
+    {
+        $params = [ "entityId"=> $this->getEntityId( [$chat->getId(), $chat->getContext() ] ) ];
+        $query = "delete from `nchats` where `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        $query = "delete from `ncontacts` where `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        $query = "delete from `nsubscriptions` where `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        $query = "delete from `nlocations` where `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+    } 
 
-    private function chatFromRow ( array $row ) {
+    private function chatFromRow ( array $row ) 
+    {
         $chat = new Chat();
         $chat->fromMarkupArray( $row );
         $user = new User();

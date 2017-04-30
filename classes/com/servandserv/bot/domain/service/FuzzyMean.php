@@ -6,15 +6,53 @@ use \com\servandserv\data\bot\Dict;
 
 class FuzzyMean
 {
+    
+    const MINLEN = 0;
+    
+    private $dict;
+    
+    public function __construct( Dict $dict )
+    {
+        $this->dict = $dict;
+    }
+
+    public function normalize( $str )
+    {
+        $words = $this->parse( $str );
+        foreach( $words as $word ) {
+            // текстовый поиск по словам в словаре
+            if( $res = $this->correct( $this->dict, $word ) ) {
+                // если нашли подходящее, то запишем в массив ключей
+                $tokens[] = $res;
+            } else {
+                $tokens[] = $word;
+            }
+        }
+        return implode( " ", $tokens );
+    }
+
+    public function parse( $in, $minlen = self::MINLEN )
+    {
+        $res = [];
+        $words = explode( " ", $in );
+        foreach( $words as $word ) {
+            if( strlen( trim( $word ) ) > $minlen ) {
+                $res[] = trim( $word );
+            }
+        }
+        
+        return $res;
+    }
 
     /**
      * https://habrahabr.ru/post/115394/
      */
     
-    public function correct( array $dict , $word )
+    public function correct( Dict $dict , $word )
     {
         $possible = $result = $meta_result = [];
         $tword = $this->encode( strtolower( $word ) );
+        $dwords = $dict->getWord();
         /**
          * запускаем цикл, который будет выбирать из массива те слова, 
          * расстояние Левенштейна между «метафонами» которых не будет превышать половину 
@@ -22,10 +60,10 @@ class FuzzyMean
          * написанных согласных букв), потом, среди выбранных вариантов, снова проверяем расстояние, 
          * но по всему слову, а не по его «метафону» и подошедшие слова записываем в массив
          */
-        foreach( $dict as $w ) {
-            if( levenshtein( metaphone( $tword ), metaphone( $w->getText() ) ) < mb_strlen( metaphone( $tword ) ) / 2 ) {
-                if( levenshtein( $tword, $w->getText() ) < mb_strlen( $tword ) / 2 ) {
-                    $possible[$w->getMean()] = $w->getText();
+        foreach( $dwords as $dword ) {
+            if( levenshtein( metaphone( $tword ), metaphone( $dword->getTranslit() ) ) < mb_strlen( metaphone( $tword ) ) / 2 ) {
+                if( levenshtein( $tword, $dword->getTranslit() ) < mb_strlen( $tword ) / 2 ) {
+                    $possible[$dword->getMean()] = $dword->getTranslit();
                 }
             }
         }
