@@ -26,8 +26,21 @@
 	            <xsd:element ref="Chat" minOccurs="0" />
 	            <xsd:element ref="Message" minOccurs="0" />
                 <xsd:element ref="Command" minOccurs="0" />
+                <xsd:element ref="Dialog" minOccurs="0" />
                 <xsd:element ref="Delivery" minOccurs="0" />
                 <xsd:element ref="Read" minOccurs="0" />
+                <xsd:element name="raw" type="xsd:string" minOccurs="0" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Sentence">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="verb" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="noun" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="numeral" type="xsd:string" minOccurs="0" />
+	            <xsd:element name="adj" type="xsd:string" minOccurs="0" />
 	        </xsd:sequence>
 	    </xsd:complexType>
 	</xsd:element>
@@ -37,7 +50,7 @@
             <xsd:sequence>
                 <xsd:element name="mid" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
                 <xsd:element name="watermark" type="core:timestamp" />
-                <xsd:element name="seq" type="xsd:integer" />
+                <xsd:element name="seq" type="xsd:integer" minOccurs="0" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -47,7 +60,7 @@
             <xsd:sequence>
                 <xsd:element name="mid" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
                 <xsd:element name="watermark" type="core:timestamp" />
-                <xsd:element name="seq" type="xsd:integer" />
+                <xsd:element name="seq" type="xsd:integer" minOccurs="0" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
@@ -70,7 +83,7 @@
                 <xsd:element ref="User" minOccurs="0" />
                 <xsd:element ref="Contact" minOccurs="0" />
                 <xsd:element ref="Location" minOccurs="0" />
-                <xsd:element ref="Venue" minOccurs="0" />
+                <xsd:element ref="Venue" minOccurs="0" maxOccurs="unbounded" />
                 <xsd:element ref="Link" minOccurs="0" maxOccurs="unbounded" />
             </xsd:sequence>
         </xsd:complexType>
@@ -180,7 +193,11 @@
 	            <xsd:element name="alt" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="role" type="xsd:string" minOccurs="0" />
 	            <xsd:element name="content" type="contentType" default="text/html" />
-                <xsd:element name="size" type="xsd:integer" minOccurs="0" />
+                <xsd:element name="size" type="xsd:int" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>Размер файла в байтах</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
                 <xsd:element name="name" type="xsd:string" minOccurs="0" />
 	        </xsd:sequence>
 	    </xsd:complexType>
@@ -197,6 +214,60 @@
 	            <xsd:element name="delivered" type="core:timestamp" minOccurs="0" />
 	            <xsd:element name="read" type="core:timestamp" minOccurs="0" />
 	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Dict">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element ref="Word" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Word">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="source" type="xsd:string" />
+	            <xsd:element name="translit" type="xsd:string" />
+	            <xsd:element name="mean" type="xsd:string" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Dialogs">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element ref="Dialog" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Dialog">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element ref="Chat" minOccurs="0" />
+	            <xsd:element name="created" type="xsd:date" minOccurs="0" />
+	            <xsd:element ref="Interchange" minOccurs="0" maxOccurs="unbounded" />
+	            <xsd:element ref="Variable" minOccurs="0" maxOccurs="unbounded" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Interchange">
+	    <xsd:complexType>
+	        <xsd:sequence>
+	            <xsd:element name="created" type="xsd:integer" minOccurs="0" />
+	            <xsd:element name="question" type="xsd:string" />
+	            <xsd:element name="answer" type="xsd:string" />
+	        </xsd:sequence>
+	    </xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="Variable">
+	    <xsd:complexType>
+	        <xsd:attribute name="name" type="xsd:string" />
+	        <xsd:attribute name="value" type="xsd:string" />
 	    </xsd:complexType>
 	</xsd:element>
 	

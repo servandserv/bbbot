@@ -239,6 +239,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
         if( $up->getChat()->getContact() ) {
             $env["PHONE"] = "TRUE";
         }
+        $env["CONTEXT"] = $up->getContext();
 
         return $env;
     }

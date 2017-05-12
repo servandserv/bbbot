@@ -46,7 +46,7 @@ class RegisterUpdates
                         $this->ur->commit();
                     } catch( \Exception $e ) {
                         $this->ur->rollback();
-                        $this->pubsub->publish( new \ExceptionOccuredEvent( $e ) );
+                        $this->pubsub->publish( new ExceptionOccuredEvent( $e ) );
                         // silence
                     }
                 }
@@ -54,7 +54,7 @@ class RegisterUpdates
             // публикуем событие регистрации апдейтов. Делаем это один раз сразу по всем апдейтам
             $this->pubsub->publish( new UpdatesRegisteredEvent( $port->getUpdates() ) );
         } catch( \Exception $e ) {
-            $this->pubsub->publish( new \ExceptionOccuredEvent( $e ) );
+            $this->pubsub->publish( new ExceptionOccuredEvent( $e ) );
             //silence
         }
         $port->response();

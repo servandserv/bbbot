@@ -29,6 +29,10 @@
 	        <xsd:element name="country" type="xsd:string" />
 	        <xsd:element name="language" type="xsd:string" />
 	        <xsd:element name="api_version" type="xsd:string" />
+	        <xsd:element name="primary_device_os" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="viber_version" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="mcc" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="mnc" type="xsd:string" minOccurs="0" />
 	    </xsd:sequence>
 	</xsd:complexType>
 	
@@ -39,6 +43,11 @@
 	        <xsd:element name="avatar" type="xsd:string" minOccurs="0"/>
 	        <xsd:element name="country" type="xsd:string" minOccurs="0" />
 	        <xsd:element name="language" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="api_version" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="primary_device_os" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="viber_version" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="mcc" type="xsd:string" minOccurs="0" />
+	        <xsd:element name="mnc" type="xsd:string" minOccurs="0" />
 	    </xsd:sequence>
 	</xsd:complexType>
 	

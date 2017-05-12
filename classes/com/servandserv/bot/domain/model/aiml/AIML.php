@@ -104,7 +104,7 @@ class AIML
         if( preg_match( self::SRAI_REG, $templ, $m ) ) {
             if( isset( $m[1] ) ) {
                 if( $srai = $this->searchSrai( strtolower( $m[1] ), $that ) ) {
-                    $templ = $srai->getTemplate();
+                    $templ = str_replace( $m[0], $srai->getTemplate(), $templ );
                 }
             }
         }
@@ -115,7 +115,7 @@ class AIML
     private function searchSrai( $pattern, $that = NULL )
     {
         foreach( $this->category as $cat ) {
-            if( $cat->getPattern() == $pattern && $cat->getThat() == $that ) {
+            if( $cat->getPattern() == $pattern && ( $cat->getThat() == NULL || $cat->getThat() == $that ) ) {
                 return $cat;
             }
         }
