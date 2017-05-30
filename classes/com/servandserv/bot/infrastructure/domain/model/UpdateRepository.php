@@ -5,6 +5,7 @@ namespace com\servandserv\bot\infrastructure\domain\model;
 use \com\servandserv\bot\infrastructure\persistence\pdo\Repository as PDORepository;
 use \com\servandserv\bot\domain\model\UpdateRepository as UpdateRepositoryInterface;
 use \com\servandserv\data\bot\Update;
+use \com\servandserv\data\bot\Command;
 
 class UpdateRepository extends PDORepository implements UpdateRepositoryInterface
 {
@@ -90,6 +91,7 @@ class UpdateRepository extends PDORepository implements UpdateRepositoryInterfac
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         
+        /**
         $command = $up->getCommand();
         if( $command ) {
             $params = [
@@ -106,6 +108,7 @@ class UpdateRepository extends PDORepository implements UpdateRepositoryInterfac
             $sth = $this->conn->prepare( $query );
             $sth->execute( $params );
         }
+        */
         
         $params = [
             ":entityId" => $entityId,
@@ -132,6 +135,24 @@ class UpdateRepository extends PDORepository implements UpdateRepositoryInterfac
             "xmlstr" => $up->toXmlStr()
         ];
         $query = "UPDATE `nupdates` SET `status`=:status, `update`=:xmlstr WHERE `autoid`=:autoid;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+    }
+    
+    public function registerCommand( Update $up )
+    {
+        $entityId = $this->getEntityIdFromUpdate( $up );
+        $params = [
+            ":entityId"=>$entityId,
+            ":command"=>$up->getCommand()->getName(),
+            ":alias"=>$up->getCommand()->getAlias(),
+            ":arguments"=>$up->getCommand()->getArguments()
+        ];
+        $query = "";
+        foreach( $params as $col => $val ) {
+            $query .= ",`".substr( $col, 1 )."`=".$col;
+        }
+        $query = "INSERT INTO `ncommands` SET ".substr( $query, 1 ).";";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
     }

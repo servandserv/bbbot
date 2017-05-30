@@ -3,6 +3,7 @@
 namespace com\servandserv\bot\infrastructure\domain\model\telegram;
 
 use \com\servandserv\bot\domain\model\BotPort;
+use \com\servandserv\bot\domain\model\RequestRepository;
 use \com\servandserv\bot\domain\model\UserNotFoundException;
 use \com\servandserv\bot\domain\model\CurlClient;
 use \com\servandserv\bot\domain\model\CurlException;
@@ -35,14 +36,18 @@ class BotAdapter implements BotPort
 
     protected $cli;
     protected $NS;
+    protected $token;
+    protected $rep;
     protected $syn;
     protected $messagesPerSecond;
     protected static $updates;
 
-    public function __construct( CurlClient $cli, $NS, Synchronizer $syn )
+    public function __construct( CurlClient $cli, $token, $NS, RequestRepository $rep, Synchronizer $syn )
     {
         $this->cli = $cli;
+        $this->token = $token;
         $this->NS = $NS;
+        $this->rep = $rep;
         $this->syn = $syn;
     }
     
@@ -52,18 +57,22 @@ class BotAdapter implements BotPort
         if( !class_exists( $clName ) ) throw new \Exception( "Class for VIEW name \"$name\" not exists." );
         $cl = new \ReflectionClass( $clName );
         $view = call_user_func_array( array( &$cl, 'newInstance' ), $args );
+        $view->setToken( $this->token );
         
         try {
             $requests = $view->getRequests();
             foreach( $requests as $request ) {
+                // если идентичный запрос уже отправляли, то пропускаем
+                if( $this->rep->findBySignature( $request->getSignature() ) ) continue;
+                
                 $this->syn->next( self::CONTEXT );// следующая отправка
                 $watermark = intval( microtime( true ) * 1000 );
-                
                 $resp = $this->cli->request( $request );
                 if( $json = json_decode( $resp->getBody(), TRUE ) ) {
                     if( isset( $json["result"] ) && isset( $json["result"]["message_id"] ) ) {
                         $ret = ( new Request() )
                             ->setId( $json["result"]["message_id"] )
+                            ->setSignature( $request->getSignature() )
                             ->setJson( $request->getContent() )
                             ->setWatermark( $watermark );
                         if( $cb ) $cb( $ret );

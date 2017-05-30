@@ -133,8 +133,9 @@ class AIMLFileRepository implements AIMLRepository
 			if ( $xr->nodeType == \XMLReader::ELEMENT && $xr->namespaceURI == self::NS ) {
 			    switch( $xr->localName ) {
 			        case "li":
-			            $key = $xr->getAttribute( "value" );
-			            $condition->setLi( $key, $xr->readInnerXML() );
+			            $value = $xr->getAttribute( "value" ) ? $xr->getAttribute( "value" ) : NULL;
+			            $pattern = $xr->getAttribute( "pattern" ) ? $xr->getAttribute( "pattern" ) : NULL;
+			            $condition->setLi( $xr->readInnerXML(), $value, $pattern );
 			            break;
 			    }
 			} elseif ( $xr->nodeType == \XMLReader::END_ELEMENT && "condition" == $xr->localName ) {

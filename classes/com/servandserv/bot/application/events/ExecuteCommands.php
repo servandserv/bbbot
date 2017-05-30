@@ -119,11 +119,15 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
             while( count( $updates ) > 0 ) {
                 foreach( $updates as $autoid=>$update ) {
                     try {
+                        $command = FALSE;
                         foreach( $this->commands as $className ) {
                             if( class_exists( $className ) && call_user_func_array( $className."::fit", [ $update, $this ] ) ) {
+                                $command = TRUE;
                                 $this->execute( $className, $update, $sl, $pubsub );
+                                $rep->registerCommand( $update );
                             }
                         }
+                        if( !$command ) $update->setCommand( NULL );
                         if( $update->getMessage() && $update->getMessage()->getText() && $update->getCommand() === NULL ) {
                             // ищем в репе диалог, если не гаходим репа вернет нам новый
                             $dialog = $drep->findForChat( $update->getChat(), new Dialog() );
@@ -157,6 +161,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
                                         // нашли такую команду подставим ее в update
                                         $update->setCommand( $up->getCommand() );
                                         $this->execute( $className, $update, $sl, $pubsub );
+                                        $rep->registerCommand( $update );
                                     }
                                 }
                             }
@@ -165,7 +170,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
                         $aiml->reset();
                         // фиксируем, что обработан
                         $update->setStatus( $rep::EXECUTED );
-                    } catch( \UserNotFoundException $e ) {
+                    } catch( UserNotFoundException $e ) {
                         // не нашли пользователя
                         // надо сообщить об этом
                         $update->setStatus( $rep::POSTPONED );
@@ -233,11 +238,12 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
     private function getEnv( Update $up )
     {
         $env = [];
-        $user = $up->getChat()->getUser()->getFirstName()." ".$up->getChat()->getUser()->getLastName();
+        $user = trim( $up->getChat()->getUser()->getFirstName()." ".$up->getChat()->getUser()->getLastName() );
         if( !$user ) $user = "***";
         $env["USER"] = $user;
-        if( $up->getChat()->getContact() ) {
+        if( !empty( $up->getChat()->getContact() ) ) {
             $env["PHONE"] = "TRUE";
+            $env["PHONE_NUMBER"] = $up->getChat()->getContact()[0]->getPhoneNumber();
         }
         $env["CONTEXT"] = $up->getContext();
 

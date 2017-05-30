@@ -17,6 +17,7 @@ class RequestRepository extends PDORepository implements RequestRepositoryInterf
             ":entityId" => $req->getEntityId(),
             ":id" => $req->getId(),
             ":outerId" => $req->getOuterId(),
+            ":signature" => $req->getSignature(),
             ":json" => $req->getJson(),
             ":watermark" => $req->getWatermark()
         ];
@@ -27,6 +28,19 @@ class RequestRepository extends PDORepository implements RequestRepositoryInterf
         $query = "INSERT INTO `nrequests` SET ".substr( $query, 1 )." ON DUPLICATE KEY UPDATE ".substr( $query, 1 );
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
+    }
+    
+    public function findBySignature( $signature ) 
+    {
+        $params = [ ":signature" => $signature ];
+        $query = "SELECT * FROM `nrequests` WHERE `signature`=:signature;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+        if( $row = $sth->fetch() ) {
+            return $row["json"];
+        }
+        
+        return NULL;
     }
     
     public function delivery( Chat $chat, Delivery $del )
@@ -45,6 +59,7 @@ class RequestRepository extends PDORepository implements RequestRepositoryInterf
         $query = "UPDATE `nrequests` SET `delivered`=:delivered WHERE `entityId`=:entityId AND `watermark` < :watermark AND `delivered` IS NULL;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
+        
     }
     
     public function read( Chat $chat, Read $read )

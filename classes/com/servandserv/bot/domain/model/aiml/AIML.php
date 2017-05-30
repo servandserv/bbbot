@@ -41,7 +41,7 @@ class AIML
                 
                 return 0;
             });
-        
+            //trigger_error( print_r( $this->category, true ) );
             return $this->category;
         }
     }
@@ -53,6 +53,8 @@ class AIML
         $selected = $this->getCategory( $question, $history )[0];
         $this->vars["topic"] = $selected->getTopic();
         $templ = $selected->getTemplate( array_merge( $env, $vars ) );
+        $templ = $this->parseTemplate( $templ, $selected->getThat() );
+        /**
         $templ = $this->filterSrai( $templ, $selected->getThat() );
         // подставляем переменные
         $templ = $this->filterDate( $templ );
@@ -61,6 +63,7 @@ class AIML
         $templ = $this->filterGet( $templ );
         // устанавливаем переменные
         $templ = $this->filterSet( $templ );
+        */
         
         return $templ;
     }
@@ -99,17 +102,112 @@ class AIML
         $this->category[] = $cat;
     }
     
-    private function filterSrai( $templ, $that )
+    // парсим шаблон подставляя в него значения
+    private function parseTemplate( $templ, $that )
     {
-        if( preg_match( self::SRAI_REG, $templ, $m ) ) {
-            if( isset( $m[1] ) ) {
-                if( $srai = $this->searchSrai( strtolower( $m[1] ), $that ) ) {
-                    $templ = str_replace( $m[0], $srai->getTemplate(), $templ );
+        $result = "";
+        $xr = new \XMLReader();
+        $xmlstr = "<?xml version='1.0' encoding='utf-8'?><abrakadabra>".$templ."</abrakadabra>";
+        $xr->XML( $xmlstr );
+        while( $xr->read() ) {
+            if( $xr->nodeType == \XMLReader::TEXT ) {
+                $result .= $xr->readString();
+            } elseif( $xr->nodeType == \XMLReader::ELEMENT ) {
+                switch( $xr->localName ) {
+                    case "srai":
+                        $result .= $this->parseSrai( $xr, $that );
+                        break;
+                    case "get":
+                        $result .= $this->parseGet( $xr );
+                        break;
+                    case "date":
+                        $result .= $this->parseDate( $xr );
+                        break;
+                    case "bot":
+                        $result .= $this->parseBot( $xr );
+                        break;
+                    case "set":
+                        $this->parseSet( $xr );
+                        break;
                 }
             }
         }
         
-        return trim( $templ );
+        return $result;
+    }
+    
+    private function parseSrai( \XMLReader $xr, $that )
+    {
+        $srai = "";
+        while( $xr->read() ) {
+            if( $xr->nodeType == \XMLReader::TEXT ) {
+                $srai .= $xr->readString();
+            } elseif( $xr->nodeType == \XMLReader::END_ELEMENT && $xr->localName == "srai" ) {
+                break;
+            }
+        }
+        if( $cat = $this->searchSrai( strtolower( $srai ), $that ) ) {
+            return $this->parseTemplate( $cat->getTemplate(), $that );
+        } else {
+            return "";
+        }
+    }
+    
+    private function parseGet( \XMLReader $xr )
+    {
+        if( isset( $this->vars[$xr->getAttribute("name")] ) ) {
+            return $this->vars[$xr->getAttribute("name")];
+        } else {
+            return "";
+        }
+    }
+    
+    private function parseBot( \XMLReader $xr )
+    {
+        if( isset( $this->env[$xr->getAttribute("name")] ) ) {
+            return $this->env[$xr->getAttribute("name")];
+        } else {
+            return "";
+        }
+    }
+    
+    private function parseDate( \XMLReader $xr )
+    {
+        return date( $xr->getAttribute( "format" ) );
+    }
+    
+    private function parseSet( \XMLReader $xr )
+    {
+        $var = $xr->getAttribute( "name" );
+        $val = "";
+        while( $xr->read() ) {
+            if( $xr->nodeType == \XMLReader::TEXT ) {
+                $val .= $xr->readString();
+            } elseif( $xr->nodeType == \XMLReader::ELEMENT ) {
+                switch( $xr->localName ) {
+                    case "get":
+                        $val .= $this->parseGet( $xr );
+                        break;
+                    case "bot":
+                        $val .= $this->parseBot( $xr );
+                        break;
+                    case "date":
+                        $val .= $this->parseDate( $xr );
+                        break;
+                }
+            } elseif( $xr->nodeType == \XMLReader::END_ELEMENT && $xr->localName == "set" ) {
+                switch( $var ) {
+                    case "command":
+                        $this->commands[] = $val;
+                        $this->vars["COMMAND"] = $val;
+                        break;
+                    default:
+                        $this->vars[$var] = $val;
+                }
+                
+                return;
+            }
+        }
     }
     
     private function searchSrai( $pattern, $that = NULL )
@@ -119,71 +217,5 @@ class AIML
                 return $cat;
             }
         }
-    }
-    
-    private function filterBot( $templ )
-    {
-        if( preg_match_all( self::BOT_REG, $templ, $m ) ) {
-            foreach( $m[0] as $k=>$str ) {
-                if( isset( $this->env[$m[1][$k]] ) ) {
-                    $templ = str_replace( $str, $this->env[$m[1][$k]], $templ );
-                } else {
-                    $templ = str_replace( $str, "", $templ );
-                }
-            }
-        }
-        
-        return trim( $templ );
-    }
-    
-    private function filterDate( $templ )
-    {
-        if( preg_match_all( self::DATE_REG, $templ, $m ) ) {
-            foreach( $m[0] as $k=>$str ) {
-                if( isset( $this->env[$m[1][$k]] ) ) {
-                    $templ = str_replace( $str, date( $this->env[$m[1][$k]] ), $templ );
-                } else {
-                    $templ = str_replace( $str, "", $templ );
-                }
-            }
-        }
-        
-        return trim( $templ );
-    }
-    
-    
-    private function filterGet( $templ )
-    {
-        if( preg_match_all( self::GET_REG, $templ, $m ) ) {
-            foreach( $m[0] as $k=>$str ) {
-                if( isset( $this->vars[$m[1][$k]] ) ) {
-                    $templ = str_replace( $str, $this->vars[$m[1][$k]], $templ );
-                } else {
-                    $templ = str_replace( $str, "", $templ );
-                }
-            }
-        }
-        
-        return trim( $templ );
-    }
-    
-    private function filterSet( $templ )
-    {
-        if( preg_match_all( self::SET_REG, $templ, $m ) ) {
-            foreach( $m[0] as $k=>$str ) {
-                switch( $m[1][$k] ) {
-                    case "command":
-                        $this->commands[] = $m[2][$k];
-                        $this->vars["COMMAND"] = $m[2][$k];
-                        break;
-                    default:
-                        $this->vars[$m[1][$k]] = $m[2][$k];
-                        break;
-                }
-                $templ = str_replace( $str, "", $templ );
-            }
-        }
-        
-        return trim( $templ );
     }
 }

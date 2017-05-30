@@ -11,11 +11,14 @@ class Condition
     
     public function getText( array $vars = [] )
     {
-        if( isset( $vars[$this->name] ) && isset( $this->li[$vars[$this->name]] ) ) {
-            return $this->li[$vars[$this->name]];
-        } else {
-            return $this->text;
+        // condition variable in memory
+        $var = isset( $vars[$this->name] ) ? $vars[$this->name] : NULL;
+        foreach( $this->li as $li ) {
+            if( $li[1] == $var ) return $li[0];
+            elseif( $li[2] !== NULL && preg_match( $li[2], $var, $m ) ) return $li[0];
         }
+        
+        return $this->text;
     }
     
     public function getName()
@@ -34,10 +37,10 @@ class Condition
         return $this->li;
     }
     
-    public function setLi( $key, $text )
+    public function setLi( $text, $value = NULL, $pattern = NULL )
     {
-        if( $key ) {
-            $this->li[$key] = $text;
+        if( $value!==NULL || $pattern!==NULL ) {
+            $this->li[] = [ $text, $value, $pattern ];
         } else {
             $this->text = $text;
         }

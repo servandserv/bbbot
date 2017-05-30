@@ -5,6 +5,7 @@ namespace com\servandserv\bot\infrastructure\domain\model\viber;
 use \com\servandserv\bot\domain\model\CurlClient;
 use \com\servandserv\bot\domain\model\CurlException;
 use \com\servandserv\bot\domain\model\BotPort;
+use \com\servandserv\bot\domain\model\RequestRepository;
 use \com\servandserv\bot\domain\model\UserNotFoundException;
 
 use \com\servandserv\happymeal\xml\schema\AnyType;
@@ -31,13 +32,15 @@ class BotAdapter implements BotPort
     protected $cli;
     protected $NS;
     protected $token;
+    protected $rep;
     protected static $updates;
 
-    public function __construct( CurlClient $cli, $token, $NS )
+    public function __construct( CurlClient $cli, $token, $NS, RequestRepository $rep )
     {
         $this->token = $token;
         $this->NS = $NS;
         $this->cli = $cli;
+        $this->rep = $rep;
     }
     
     public function makeRequest( $name, array $args, callable $cb = NULL )
@@ -51,6 +54,9 @@ class BotAdapter implements BotPort
         $requests = $view->getRequests();
         //try {
             foreach( $requests as $request ) {
+            
+                if( $this->rep->findBySignature( $request->getSignature() ) ) continue;
+            
                 $watermark = round( microtime( true ) * 1000 );
                 $resp = $this->cli->request( $request );
                 if( $json = json_decode( $resp->getBody(), TRUE ) ) {
@@ -58,6 +64,7 @@ class BotAdapter implements BotPort
                         $ret = ( new Request() )
                             ->setId( $json["message_token"] )
                             ->setJson( $request->getContent() )
+                            ->setSignature( $request->getSignature() )
                             ->setWatermark( $watermark );
                         if( $cb ) $cb( $ret );
                     } else if ( array_key_exists( "status", $json ) && in_array( intval( $json["status"] ) , [ 5, 6, 7 ] ) ) {
