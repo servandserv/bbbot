@@ -79,7 +79,7 @@ class ChatRepository extends PDORepository implements ChatRepositoryInterface {
         }
         return $chats;
     }
-
+    
     public function locationsFor ( Chat $chat ) {
         $params = [ ":entityId" => $this->getEntityId( [$chat->getId(), $chat->getContext() ] ) ];
         $query = "SELECT * FROM `nlocations` WHERE `entityId`=:entityId ORDER BY `updated` DESC;";
@@ -127,7 +127,7 @@ class ChatRepository extends PDORepository implements ChatRepositoryInterface {
     
     public function remove( Chat $chat )
     {
-        $params = [ "entityId"=> $this->getEntityId( [$chat->getId(), $chat->getContext() ] ) ];
+        $params = [ ":entityId"=> $this->getEntityId( [$chat->getId(), $chat->getContext() ] ) ];
         $query = "delete from `nchats` where `entityId`=:entityId;";
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
@@ -141,6 +141,58 @@ class ChatRepository extends PDORepository implements ChatRepositoryInterface {
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
     } 
+    
+    public function bindOuterUID( array $keys, $uid )
+    {
+        $params = [ 
+            ":entityId" => $this->getEntityId( $keys ),
+            ":UID" => $uid
+        ];
+        
+        $query = "UPDATE `nchats` SET `UID`=:UID WHERE `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+    }
+    
+    public function unbindOuterUID( Chat $chat )
+    {
+        $params = [ 
+            ":entityId" => $this->getEntityId( [$chat->getId(), $chat->getContext() ] )
+        ];
+        
+        $query = "UPDATE `nchats` SET `UID` = NULL WHERE `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+    }
+    
+    public function updateChatUser( Chat $chat )
+    {
+        $entityId = $this->getEntityId( [$chat->getId(), $chat->getContext() ] );
+        $params[":entityId"] = $entityId;
+        $params[":firstName"] = $chat->getUser()->getFirstName();
+        $params[":lastName"] = $chat->getUser()->getLastName();
+            
+        $user = [
+            ":entityId" => $entityId,
+            ":firstName" => $chat->getUser()->getFirstName(),
+            ":lastName" => $chat->getUser()->getLastName(),
+            ":middleName" => $chat->getUser()->getMiddleName(),
+            ":gender" => $chat->getUser()->getGender(),
+            ":locale" => $chat->getUser()->getLocale()
+        ];
+            
+        $query = "";
+        foreach( $user as $col => $val ) {
+            $query .= ",`".substr( $col, 1 )."`=".$col;
+        }
+        $query = "INSERT INTO `nusers` SET ".substr( $query, 1 )." ON DUPLICATE KEY UPDATE ".substr( $query, 1 );
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $user );
+        
+        $query = "UPDATE `nchats` SET `firstName`=:firstName, `lastName`=:lastName WHERE `entityId`=:entityId;";
+        $sth = $this->conn->prepare( $query );
+        $sth->execute( $params );
+    }
 
     private function chatFromRow ( array $row ) 
     {

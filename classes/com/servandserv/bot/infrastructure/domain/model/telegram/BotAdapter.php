@@ -211,7 +211,7 @@ class BotAdapter implements BotPort
     {
         if( !$ct ) return NULL;
         $c = ( new Contact() )
-            ->setPhoneNumber( str_replace( ["+","(",")","[","]","-"], "", $ct->getPhone_number() ) )
+            ->setPhoneNumber( str_replace( [" ","+","(",")","[","]","-"], "", $ct->getPhone_number() ) )
             ->setUser( ( new User() )
                 ->setId( $ct->getUser_id() )
                 ->setFirstName( $ct->getFirst_name() )

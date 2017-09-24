@@ -5,6 +5,7 @@ namespace com\servandserv\bot\application\events;
 use \com\servandserv\happymeal\errors\Error;
 use \com\servandserv\happymeal\errors\Errors;
 use \com\servandserv\data\bot\Update;
+use \com\servandserv\data\bot\Chat;
 use \com\servandserv\bot\application\ServiceLocator;
 use \com\servandserv\bot\domain\model\events\Subscriber;
 use \com\servandserv\bot\domain\model\events\Publisher;
@@ -111,6 +112,7 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
              * повторяемся пока не прочитаем все в очереди
              */
             $rep = $sl->create( "com.servandserv.bot.domain.model.UpdateRepository" );
+            $chrep = $sl->create( "com.servandserv.bot.domain.model.ChatRepository" );
             $drep = $sl->create( "com.servandserv.bot.domain.model.DialogRepository" );
             $aiml = $sl->create( "com.servandserv.bot.domain.model.AIMLRepository" )->read();
             $fm = $sl->create( "com.servandserv.bot.domain.service.FuzzyMean" );
@@ -129,12 +131,14 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
                         }
                         if( !$command ) $update->setCommand( NULL );
                         if( $update->getMessage() && $update->getMessage()->getText() && $update->getCommand() === NULL ) {
+                            // ищем чат
+                            $chat = $chrep->findByKeys( [ $update->getChat()->getId(), $update->getContext() ] );
                             // ищем в репе диалог, если не гаходим репа вернет нам новый
                             $dialog = $drep->findForChat( $update->getChat(), new Dialog() );
                             // получаем нормализованную строку вопроса
                             $normalized = $fm->normalize( $update->getMessage()->getText() );
                             // ищем ответ
-                            $answer = $aiml->answer( $normalized, $dialog->getLastAnswer(), $this->getEnv( $update ), $dialog->varsToAssocArray() );
+                            $answer = $aiml->answer( $normalized, $dialog->getLastAnswer(), $this->getEnv( $update, $chat ), $dialog->varsToAssocArray() );
                             // создаем следующую итерацию диалога
                             $dialog->setInterchange( $dialog->createInterchange( $update->getMessage()->getText(), $answer ) );
                             // устанавливаем измененные переменные диалога
@@ -235,15 +239,19 @@ class ExecuteCommands extends AsyncLazy implements Subscriber
         return $commands;
     }
 
-    private function getEnv( Update $up )
+    private function getEnv( Update $up, Chat $chat )
     {
         $env = [];
-        $user = trim( $up->getChat()->getUser()->getFirstName()." ".$up->getChat()->getUser()->getLastName() );
+        $user = trim( $chat->getUser()->getFirstName()." ".$chat->getUser()->getLastName() );
         if( !$user ) $user = "***";
         $env["USER"] = $user;
         if( !empty( $up->getChat()->getContact() ) ) {
             $env["PHONE"] = "TRUE";
             $env["PHONE_NUMBER"] = $up->getChat()->getContact()[0]->getPhoneNumber();
+            $contact = $up->getMessage()->getContact();
+            if( $contact && $contact->getUser() && $contact->getUser()->getAvatar() ) {
+                $env["AVATAR"] = "TRUE";
+            }
         }
         $env["CONTEXT"] = $up->getContext();
 

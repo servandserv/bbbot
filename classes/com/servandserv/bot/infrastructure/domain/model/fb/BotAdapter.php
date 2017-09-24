@@ -4,6 +4,10 @@ namespace com\servandserv\bot\infrastructure\domain\model\fb;
 
 use \com\servandserv\bot\domain\model\BotPort;
 use \com\servandserv\bot\domain\model\CurlClient;
+use \com\servandserv\bot\domain\model\RequestRepository;
+
+use \com\servandserv\happymeal\XML\Schema\AnyType;
+
 use \com\servandserv\data\bot\Updates;
 use \com\servandserv\data\bot\Update;
 use \com\servandserv\data\bot\UpdateEventType;
@@ -16,6 +20,8 @@ use \com\servandserv\data\bot\Command;
 use \com\servandserv\data\bot\Contact;
 use \com\servandserv\data\bot\Location;
 
+use \com\facebook\data\bot\Update as FacebookUpdate;
+
 class BotAdapter implements BotPort
 {
     const CONTEXT = "com.facebook";
@@ -23,13 +29,15 @@ class BotAdapter implements BotPort
     protected $cli;
     protected $NS;
     protected $secret;
+    protected $rep;
     protected static $updates;
 
-    public function __construct( CurlClient $cli, $secret, $NS )
+    public function __construct( CurlClient $cli, $secret, $NS, RequestRepository $rep )
     {
         $this->cli = $cli;
         $this->NS = $NS;
         $this->secret = $secret;
+        $this->rep = $rep;
     }
     
     public function makeRequest( $name, array $args, callable $cb = NULL )
@@ -39,23 +47,38 @@ class BotAdapter implements BotPort
         $cl = new \ReflectionClass( $clName );
         $view = call_user_func_array( array( &$cl, 'newInstance' ), $args );
         
-        $requests = $view->getRequests();
-        foreach( $requests as $request ) {
-            $watermark = round( microtime( true ) * 1000 );
-            $resp = $this->cli->request( $request );
-            if( $json = json_decode( $resp->getBody(), TRUE ) ) {
-                if( isset( $json["message_id"] ) ) {
-                    $ret = ( new Request() )
-                        ->setId( $json["message_id"] )
-                        ->setJson( $request->getContent() )
-                        ->setWatermark( $watermark );
-                    if( $cb ) $cb( $ret );
+        try {
+            $requests = $view->getRequests();
+            foreach( $requests as $request ) {
+                // если идентичный запрос уже отправляли, то пропускаем
+                if( $this->rep->findBySignature( $request->getSignature() ) ) continue;
+            
+                $watermark = round( microtime( true ) * 1000 );
+                $resp = $this->cli->request( $request );
+                if( $json = json_decode( $resp->getBody(), TRUE ) ) {
+                    if( isset( $json["message_id"] ) ) {
+                        $ret = ( new Request() )
+                            ->setId( $json["message_id"] )
+                            ->setJson( $request->getContent() )
+                            ->setWatermark( $watermark );
+                        if( $cb ) $cb( $ret );
+                    } else if( isset( $json["error"] ) ) {
+                        throw new \Exception( $json["error"]["message"], $json["error"]["code"].".".$json["error"]["subcode"] );
+                    }
                 }
+            }
+        } catch( \Exception $e ) {
+            switch( $e->getCode() ) {
+                case "100.":
+                case "100.2018001":
+                    throw new UserNotFoundException( $e->getMessage(), $e->getCode() );
+                    break;
+                default:
+                    //trigger_error( $e->getMessage() );
+                    throw new \Exception( $e->getMessage(), $e->getCode(), $e );
             }
         }
     }
-    
-    
     
     public function getUpdates()
     {
@@ -63,80 +86,80 @@ class BotAdapter implements BotPort
             $in = file_get_contents( "php://input" );
             self::$updates = ( new Updates() )->setContext( self::CONTEXT );
             if( !$json = json_decode( $in, TRUE ) ) throw new \Exception( "Error on decode update json in ".__FILE__." on line ".__LINE__ );
-            if( !$this->auth( $json ) ) throw new \Exception( "Invalid X-Hub-Signature header in ".__FILE__." on ".__LINE__ );
-            if( !isset( $json["entry"] ) || !is_array( $json["entry"] ) ) throw new \Exception( "Error no entry node in update json in ".__FILE__." on line ".__LINE__ );
-            foreach( $json["entry"] as $entry ) {
-                if( !isset( $entry["messaging"] ) || !is_array( $entry["messaging"] ) ) continue;
-                foreach( $entry["messaging"]  as $messaging ) {
-                    $up = new Update();
-                    $up->setContext( self::CONTEXT );
-                    $chat = new Chat();
-                    $chat->setId( $messaging["sender"]["id"] );
-                    $chat->setContext( self::CONTEXT );
-                    $chat->setType( "private" );
-                    // todo
-                    //if( isset( $messaging["delivery"] ) || isset( $messaging["read"] ) ) continue;
-                    if( isset( $messaging["delivery"] ) ) {
+            //if( !$this->auth( $json ) ) throw new \Exception( "Invalid X-Hub-Signature header in ".__FILE__." on ".__LINE__ );
+            $fbup = ( new FacebookUpdate() )->fromJSONArray( $json );
+            $entries = $fbup->getEntry();
+            foreach( $entries as $entry ) {
+                $items = $entry->getMessaging();
+                foreach( $items as $item ) {
+                    $up = ( new Update() )
+                        ->setContext( self::CONTEXT )
+                        ->setId( intval( microtime( true )*1000 ) )
+                        ->setRaw( $in );
+                    $chat = ( new Chat() )
+                        ->setId( $item->getSender()->getId() )
+                        ->setType( "private" )
+                        ->setContext( self::CONTEXT );
+                    if( $item->getDelivery() ) {
                         $up->setEvent( UpdateEventType::_DELIVERED );
-                        $del = new Delivery();
-                        if( isset( $messaging["delivery"]["mids"] ) && is_array( $messaging["delivery"]["mids"] ) ) {
-                            foreach( $messaging["delivery"]["mids"] as $mid ) {
-                                $del->setMid( $mid );
-                            }
+                        $delivery = ( new Delivery() )
+                            ->setWatermark( $item->getDelivery()->getWatermark() )
+                            ->setSeq( $item->getDelivery()->getSeq() );
+                        $mids = $item->getDelivery()->getMids();
+                        foreach( $mids as $mid ) {
+                            $delivery->setMid( $mid );
                         }
-                        $del->setWatermark( $messaging["delivery"]["watermark"] );
-                        $del->setSeq( $messaging["delivery"]["seq"] );
-                        $up->setDelivery( $del );
+                        $up->setDelivery( $delivery );
                     }
-                    if( isset( $messaging["read"] ) ) {
+                    if( $item->getRead() ) {
                         $up->setEvent( UpdateEventType::_READ );
-                        $read = new Read();
-                        /**
-                        if( isset( $messaging["read"]["mids"] ) && is_array( $messaging["read"]["mids"] ) ) {
-                            foreach( $messaging["read"]["mids"] as $mid ) {
-                                $del->setMid( $mid );
-                            }
-                        }
-                        */
-                        $read->setWatermark( $messaging["read"]["watermark"] );
-                        $read->setSeq( $messaging["read"]["seq"] );
-                        $up->setRead( $read );
+                        $read = ( new Read() )
+                            ->setWatermark( $item->getRead()->getWatermark() )
+                            ->setSeq( $item->getRead()->getSeq() );
                     }
-                    if( isset( $messaging["message"] ) ) {
+                    if( $item->getMessage() ) {
                         $up->setEvent( UpdateEventType::_RECEIVED );
-                        $m = $messaging["message"];
-                        // нашли сообщение
-                        $message = new Message();
-                        if( isset( $m["text"] ) )
-                        $message->setText( $m["text"] );
-                        if( isset( $m["attachments"] ) && is_array( $m["attachments"]) ) {
-                            foreach( $m["attachments"] as $at ) {
-                                if( isset( $at["type"] ) && $at["type"] == "location" ) {
-                                    $loc = new Location();
-                                    $loc->setLatitude( $at["payload"]["coordinates"]["lat"] );
-                                    $loc->setLongitude( $at["payload"]["coordinates"]["long"] );
+                        $message = ( new Message() )
+                            ->setId( $item->getMessage()->getMid() )
+                            ->setDt( $item->getTimestamp() )
+                            ->setText( $item->getMessage()->getText() );
+                        $attachments = $item->getMessage()->getAttachments();
+                        foreach( $attachments as $attachment ) {
+                            switch( $attachment->getType() ) {
+                                case "location":
+                                    $loc = ( new Location() )
+                                        ->setLatitude( $attachment->getPayload()->getCoordinates()->getLat() )
+                                        ->setLongitude( $attachment->getPayload()->getCoordinates()->getLong() );
                                     $message->setLocation( $loc );
                                     $chat->setLocation( $loc );
-                                }
                             }
                         }
                         $up->setMessage( $message );
                     }
                     $up->setChat( $chat );
-                    if( isset( $messaging["postback"] ) ) {
+                    if( $item->getPostback() ) {
                         $up->setEvent( UpdateEventType::_POSTBACK );
-                        $command = new Command();
-                        $command->setName( substr($messaging["postback"]["payload"], 1 ) )->setArguments( "" );
+                        $command = ( new Command() )
+                            ->setName( substr( $item->getPostback()->getPayload(), 1 ) )
+                            ->setArguments( "" );
+                        $up->setCommand( $command );
+                    }
+                    if( $item->getAccount_linking() ) {
+                        $up->setEvent( UpdateEventType::_POSTBACK );
+                        $command = ( new Command() )
+                            ->setName( "account-".$item->getAccount_linking()->getStatus() )
+                            ->setArguments( $item->getAccount_linking()->getAuthorization_code() );
                         $up->setCommand( $command );
                     }
                     self::$updates->setUpdate( $up );
                 }
             }
         }
+        //print self::$updates->toXmlStr();exit;
         return self::$updates;
     }
     
-    public function response( \com\servandserv\happymeal\XML\Schema\AnyType $anyType = NULL, $code = 200 )
+    public function response( AnyType $anyType = NULL, $code = 200 )
     {
         if( !headers_sent() ) {
             $protocol = ( isset( $_SERVER["SERVER_PROTOCOL"] ) ? $_SERVER["SERVER_PROTOCOL"] : "HTTP/1.0" );

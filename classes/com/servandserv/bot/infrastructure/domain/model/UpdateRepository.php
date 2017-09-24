@@ -91,25 +91,6 @@ class UpdateRepository extends PDORepository implements UpdateRepositoryInterfac
         $sth = $this->conn->prepare( $query );
         $sth->execute( $params );
         
-        /**
-        $command = $up->getCommand();
-        if( $command ) {
-            $params = [
-                ":entityId"=>$entityId,
-                ":command"=>$command->getName(),
-                ":alias"=>$command->getAlias(),
-                ":arguments"=>$command->getArguments()
-            ];
-            $query = "";
-            foreach( $params as $col => $val ) {
-                $query .= ",`".substr( $col, 1 )."`=".$col;
-            }
-            $query = "INSERT INTO `ncommands` SET ".substr( $query, 1 ).";";
-            $sth = $this->conn->prepare( $query );
-            $sth->execute( $params );
-        }
-        */
-        
         $params = [
             ":entityId" => $entityId,
             ":context" => $chat->getContext(),

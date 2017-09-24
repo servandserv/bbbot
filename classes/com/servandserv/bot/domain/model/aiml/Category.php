@@ -15,6 +15,12 @@ class Category
     private $score;
     private $that;
     private $topic;
+    private $replacements; // замены в шаблонах
+    
+    public function __construct( array $replacements = [] )
+    {
+        $this->replacements = $replacements;
+    }
     
     // разбиваем pattern категории на отдельные токены
     // они бывают простыми словами и специальными масками
@@ -22,18 +28,10 @@ class Category
     {
         $tokens = explode( " ", $pattern );
         foreach( $tokens as $token ) {
-            switch( $token ) {
-                case ":money":
-                    $stokens[] = [ $token, "/(^|\s)\d{1,5}((\.|,)\d{1,2})?(\s|$)/" ];
-                    break;
-                case ":phone":
-                    $stokens[] = [ $token, "/(^|\s)\+?(7|8)\d{10}(\s|$)/" ];
-                    break;
-                case "*":
-                    $stokens[] = [ $token, "/.*/" ];
-                    break;
-                default:
-                    $stokens[] = [ $token, "/".$token."/" ];
+            if( isset( $this->replacements[$token] ) ) {
+                $stokens[] = [ $token, $this->replacements[$token] ];
+            } else {
+                $stokens[] = [ $token, "/".$token."/" ];
             }
         }
         
@@ -107,7 +105,7 @@ class Category
                 $this->score -= 2;
             }
             
-            if( $occ[3] == "*" || $occ[3] == ":money" || $occ[3] == ":phone" || $occ[3] == ":string" ) {
+            if( isset( $this->replacements[$occ[3]] ) ) {
                 $this->stars[] = $occ[2];
             }
         }

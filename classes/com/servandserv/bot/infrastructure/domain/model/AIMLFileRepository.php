@@ -16,10 +16,13 @@ class AIMLFileRepository implements AIMLRepository
     const NS = "http://alicebot.org/2001/AIML-1.0.1";
 
     private static $aiml;
+    private $href;
+    private $replacements;
     
-    public function __construct( $href )
+    public function __construct( $href, array $replacements = [] )
     {
         $this->href = $href;
+        $this->replacements = $replacements;
     }
     
     public function read()
@@ -47,6 +50,11 @@ class AIMLFileRepository implements AIMLRepository
 		while ( $xr->read() ) {
 			if ( $xr->nodeType == \XMLReader::ELEMENT && $xr->namespaceURI == self::NS ) {
 			    switch( $xr->localName ) {
+			        case "replacement":
+			            $key = $xr->getAttribute( "key" );
+			            $val = $xr->readString();
+			            $this->replacements[$key] = $val;
+			            break;
 			        case "topic":
 			            $topic = $xr->getAttribute("name");
 			            break;
@@ -65,7 +73,7 @@ class AIMLFileRepository implements AIMLRepository
     
     private function categoryFromXmlReader( $xr )
     {
-        $category = new Category();
+        $category = new Category( $this->replacements );
         while ( $xr->read() ) {
 			if ( $xr->nodeType == \XMLReader::ELEMENT && $xr->namespaceURI == self::NS ) {
 			    switch( $xr->localName ) {

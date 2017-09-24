@@ -147,16 +147,17 @@ class BotAdapter implements BotPort
                     }
                     if( $c = $vup->getMessage()->getContact() ) {
                         $contact = ( new Contact() )
-                            ->setPhoneNumber( str_replace( ["+","(",")","[","]","-"], "", $c->getPhone_number() ) );
+                            ->setPhoneNumber( str_replace( [" ","+","(",")","[","]","-"], "", $c->getPhone_number() ) );
                         $contactuser = ( new User() )->setFirstName( $c->getUsername() );
-                        try {
-                            if( $this->checkId( $sender->getAvatar(), $c->getAvatar() ) ) {
+                        //try {
+                            if( $this->checkUser( $sender->getId(), $c ) ) {
                                 $contactuser->setId( $sender->getId() )->setAvatar( $c->getAvatar() );
+                                $sender->setAvatar( $c->getAvatar() );
                             }
-                        } catch( CurlException $e ) {
+                        //} catch( \Exception $e ) {
                             // не знаю пока что мне с этим делать
                             // приходят ошибки vibera о недоступности аватара клиента
-                        }
+                        //}
                         $contact->setUser( $contactuser );
                         $chat->setContact( $contact );
                         $message->setContact( $contact );
@@ -223,16 +224,54 @@ class BotAdapter implements BotPort
      *  Проверяем совпадение аватаров пользователя отправившего контакт и самого контакта
      * если они совпадают, то значит отправитель передал свой контактный номер. если нет, то контактный номер чужой.
      */
-    private function checkId( $senderAvatar, $contactAvatar )
+    private function checkUser( $id, $contact )
     {
-            $senderAvatar = filter_var( $senderAvatar , FILTER_VALIDATE_URL );
-            $contactAvatar = filter_var( $contactAvatar, FILTER_VALIDATE_URL );
+        try {
+            $senderAvatar = FALSE;
+            $details = $this->getUserDetails( $id );
+            if( is_array( $details) ) {
+                if( isset( $details["user"] ) && isset( $details["user"]["avatar"] ) ) {
+                    $senderAvatar = filter_var( $details["user"]["avatar"] , FILTER_VALIDATE_URL );
+                } elseif( isset( $details["status"] ) && $details["status"] == "19" ) {
+                    throw new \Exception( $details["status_message"], 19 );
+                }
+            }
+            $contactAvatar = filter_var( $contact->getAvatar(), FILTER_VALIDATE_URL );
             if( $senderAvatar && $contactAvatar ) {
                 $senderId = $this->cli->getEffectiveUrl( $senderAvatar );
                 $contactId = $this->cli->getEffectiveUrl( $contactAvatar );
             
                 return $senderId == $contactId;
             }
+        } catch( \Exception $e ) {
+            throw new \Exception( $senderAvatar.PHP_EOL.$contact->getAvatar(), $e->getCode(), $e );
+        }
     }
     
+    private function getUserDetails( $id )
+    {
+        $json = json_encode([
+            "auth_token" => $this->token,
+            "id" => $id
+        ]);
+        $request = ( new \com\servandserv\data\curl\Request() )
+            ->setMethod( "POST" )
+            ->setQuery( "get_user_details" )
+            ->setHeader( ( new \com\servandserv\data\curl\Header() )->setName( "Content-type" )->setValue( "application/json" ) )
+            ->setSignature( $this->getSignature( $json ) )
+            ->setContent( $json );
+        $resp = $this->cli->request( $request );
+        if( $json = json_decode( $resp->getBody(), TRUE ) ) {
+            return $json;
+        }
+    }
+    
+    private function getSignature( $in, $token = "" )
+    {
+        if( $token ) $token = $token."-".$this->token;
+        else $token = $this->token;
+        $signature = hash_hmac( "sha256", $in, $token );
+        
+        return $signature;
+    }
 }

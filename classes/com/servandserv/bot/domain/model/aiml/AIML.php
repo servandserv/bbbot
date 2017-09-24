@@ -147,7 +147,8 @@ class AIML
             }
         }
         if( $cat = $this->searchSrai( strtolower( $srai ), $that ) ) {
-            return $this->parseTemplate( $cat->getTemplate(), $that );
+            $templ = $cat->getTemplate( array_merge( $this->env, $this->vars ) );
+            return $this->parseTemplate( $templ, $that );
         } else {
             return "";
         }
