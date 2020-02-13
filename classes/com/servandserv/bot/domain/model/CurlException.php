@@ -2,4 +2,6 @@
 
 namespace com\servandserv\bot\domain\model;
 
-class CurlException extends \RuntimeException {}
+class CurlException extends \RuntimeException {
+
+}

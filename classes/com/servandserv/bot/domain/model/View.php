@@ -2,7 +2,9 @@
 
 namespace com\servandserv\bot\domain\model;
 
-interface View
-{
+interface View {
+
     public function getRequests();
+
+    public function isSynchronous();
 }

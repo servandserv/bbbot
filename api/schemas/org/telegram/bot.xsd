@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema elementFormDefault="qualified"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="urn:org:telegram:data:bot"
-	targetNamespace="urn:org:telegram:data:bot">
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="urn:org:telegram:data:bot"
+            targetNamespace="urn:org:telegram:data:bot">
 
     <xsd:element name="Update">
         <xsd:complexType>
@@ -16,7 +16,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:complexType name="MessageType">
         <xsd:sequence>
             <xsd:element name="message_id" type="xsd:integer" />
@@ -31,6 +31,8 @@
             <xsd:element name="edit_date" type="xsd:integer" minOccurs="0" />
             <xsd:element name="text" type="messageTextType" minOccurs="0" />
             <xsd:element name="entities" type="MessageEntityType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="document" type="MessageDocumentType" minOccurs="0" />
+            <xsd:element name="photo" type="MessagePhotoSizeType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element name="contact" type="ContactType" minOccurs="0" />
             <xsd:element name="location" type="LocationType" minOccurs="0" />
         </xsd:sequence>
@@ -44,7 +46,7 @@
             <xsd:element name="username" type="xsd:string" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ChatType">
         <xsd:sequence>
             <xsd:element name="id" type="xsd:integer" />
@@ -56,7 +58,7 @@
             <xsd:element name="all_members_are_administrators" type="xsd:boolean" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="MessageEntityType">
         <xsd:sequence>
             <xsd:element name="type" type="messageEntityTypeType" />
@@ -66,7 +68,7 @@
             <xsd:element name="user" type="UserType" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ContactType">
         <xsd:sequence>
             <xsd:element name="phone_number" type="xsd:string" />
@@ -75,7 +77,7 @@
             <xsd:element name="user_id" type="xsd:integer" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="LocationType">
         <xsd:sequence>
             <xsd:element name="longitude" type="xsd:float" />
@@ -95,12 +97,32 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:complexType name="MessageDocumentType">
+        <xsd:sequence>
+            <xsd:element name="file_id" type="xsd:string" />
+            <xsd:element name="file_unique_id" type="xsd:string" />
+            <xsd:element name="file_name" type="xsd:string" />
+            <xsd:element name="mime_type" type="xsd:string" />
+            <xsd:element name="file_size" type="xsd:integer" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MessagePhotoSizeType">
+        <xsd:sequence>
+            <xsd:element name="file_id" type="xsd:string" />
+            <xsd:element name="file_unique_id" type="xsd:string" />
+            <xsd:element name="width" type="xsd:integer" />
+            <xsd:element name="height" type="xsd:integer" />
+            <xsd:element name="file_size" type="xsd:integer" />
+        </xsd:sequence>
+    </xsd:complexType>
+
     <xsd:simpleType name="messageTextType">
         <xsd:restriction base="xsd:string">
             <xsd:maxLength value="4096" />
         </xsd:restriction>
     </xsd:simpleType>
-    
+
     <xsd:simpleType name="messageEntityTypeType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="mention" />

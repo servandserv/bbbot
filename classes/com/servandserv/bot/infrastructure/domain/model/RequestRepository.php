@@ -9,10 +9,9 @@ use \com\servandserv\data\bot\Chat;
 use \com\servandserv\data\bot\Delivery;
 use \com\servandserv\data\bot\Read;
 
-class RequestRepository extends PDORepository implements RequestRepositoryInterface
-{
-    public function register( Request $req )
-    {
+class RequestRepository extends PDORepository implements RequestRepositoryInterface {
+
+    public function register(Request $req) {
         $params = [
             ":entityId" => $req->getEntityId(),
             ":id" => $req->getId(),
@@ -22,69 +21,63 @@ class RequestRepository extends PDORepository implements RequestRepositoryInterf
             ":watermark" => $req->getWatermark()
         ];
         $query = "";
-        foreach( $params as $col => $val ) {
-            $query .= ",`".substr($col, 1)."`=".$col;
+        foreach ($params as $col => $val) {
+            $query .= ",`" . substr($col, 1) . "`=" . $col;
         }
-        $query = "INSERT INTO `nrequests` SET ".substr( $query, 1 )." ON DUPLICATE KEY UPDATE ".substr( $query, 1 );
-        $sth = $this->conn->prepare( $query );
-        $sth->execute( $params );
+        $query = "INSERT INTO `nrequests` SET " . substr($query, 1) . " ON DUPLICATE KEY UPDATE " . substr($query, 1);
+        $sth = $this->conn->prepare($query);
+        $sth->execute($params);
     }
-    
-    public function findBySignature( $signature ) 
-    {
-        $params = [ ":signature" => $signature ];
+
+    public function findBySignature($signature) {
+        $params = [":signature" => $signature];
         $query = "SELECT * FROM `nrequests` WHERE `signature`=:signature;";
-        $sth = $this->conn->prepare( $query );
-        $sth->execute( $params );
-        if( $row = $sth->fetch() ) {
+        $sth = $this->conn->prepare($query);
+        $sth->execute($params);
+        if ($row = $sth->fetch()) {
             return $row["json"];
         }
-        
+
         return NULL;
     }
-    
-    public function delivery( Chat $chat, Delivery $del )
-    {
+
+    public function delivery(Chat $chat, Delivery $del) {
         $mids = $del->getMid();
-        if( is_array( $mids ) && count( $mids ) > 0 ) {
-            foreach( $mids as $mid ) {
-                $params = [ ":id" => $mid, ":delivered" => $del->getWatermark()  ];
+        if (is_array($mids) && count($mids) > 0) {
+            foreach ($mids as $mid) {
+                $params = [":id" => $mid, ":delivered" => $del->getWatermark()];
                 $query = "UPDATE `nrequests` SET `delivered`=:delivered WHERE `id`=:id;";
-                $sth = $this->conn->prepare( $query );
-                $sth->execute( $params );
+                $sth = $this->conn->prepare($query);
+                $sth->execute($params);
             }
         }
-        $entityId = $this->getEntityIdFromChat( $chat );
-        $params = [ ":entityId" => $entityId, ":delivered" => $del->getWatermark(), ":watermark" => $del->getWatermark() ];
+        $entityId = $this->getEntityIdFromChat($chat);
+        $params = [":entityId" => $entityId, ":delivered" => $del->getWatermark(), ":watermark" => $del->getWatermark()];
         $query = "UPDATE `nrequests` SET `delivered`=:delivered WHERE `entityId`=:entityId AND `watermark` < :watermark AND `delivered` IS NULL;";
-        $sth = $this->conn->prepare( $query );
-        $sth->execute( $params );
-        
+        $sth = $this->conn->prepare($query);
+        $sth->execute($params);
     }
-    
-    public function read( Chat $chat, Read $read )
-    {
+
+    public function read(Chat $chat, Read $read) {
         $mids = $read->getMid();
-        if( is_array( $mids ) && count( $mids ) > 0 ) {
-            foreach( $mids as $mid ) {
-                $params = [ ":id" => $mid, ":read" => $read->getWatermark()  ];
+        if (is_array($mids) && count($mids) > 0) {
+            foreach ($mids as $mid) {
+                $params = [":id" => $mid, ":read" => $read->getWatermark()];
                 $query = "UPDATE `nrequests` SET `read`=:read WHERE `id`=:id;";
-                $sth = $this->conn->prepare( $query );
-                $sth->execute( $params );
+                $sth = $this->conn->prepare($query);
+                $sth->execute($params);
             }
         }
-        $entityId = $this->getEntityIdFromChat( $chat );
-        $params = [ ":entityId" => $entityId, ":read" => $read->getWatermark(), ":watermark" => $read->getWatermark() ];
+        $entityId = $this->getEntityIdFromChat($chat);
+        $params = [":entityId" => $entityId, ":read" => $read->getWatermark(), ":watermark" => $read->getWatermark()];
         $query = "UPDATE `nrequests` SET `read`=:read WHERE `entityId`=:entityId AND `watermark` < :watermark AND `read` IS NULL;";
-        $sth = $this->conn->prepare( $query );
-        $sth->execute( $params );
+        $sth = $this->conn->prepare($query);
+        $sth->execute($params);
     }
-    
-    
-    public function findByStatus( $status )
-    {
-        $params = [ ":status" => $status ];
+
+    public function findByStatus($status) {
+        $params = [":status" => $status];
         $query = "SELECT * FROM `nrequests` WHERE `status`=:status;";
-        
     }
+
 }

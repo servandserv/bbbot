@@ -1,141 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema elementFormDefault="qualified"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="urn:com:facebook:data:bot"
-	targetNamespace="urn:com:facebook:data:bot">
-	
-	<xsd:element name="Update">
-	    <xsd:complexType>
-	        <xsd:sequence>
-	            <xsd:element name="object" type="xsd:string" default="page" />
-	            <xsd:element name="entry" type="EntryType" minOccurs="0" maxOccurs="unbounded" />
-	        </xsd:sequence>
-	    </xsd:complexType>
-	</xsd:element>
-	
-	<xsd:complexType name="EntryType">
-	    <xsd:sequence>
-	        <xsd:element name="id" type="xsd:string" />
-	        <xsd:element name="time" type="xsd:integer" />
-	        <xsd:element name="messaging" type="MessagingType" minOccurs="0" maxOccurs="unbounded" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="MessagingType">
-	    <xsd:sequence>
-	        <xsd:element name="sender" type="SenderType" />
-	        <xsd:element name="recipient" type="RecipientType" />
-	        <xsd:element name="timestamp" type="xsd:integer" />
-	        <xsd:element name="message" type="MessageType" minOccurs="0" />
-	        <xsd:element name="delivery" type="DeliveryType" minOccurs="0" />
-	        <xsd:element name="read" type="ReadType" minOccurs="0" />
-	        <xsd:element name="postback" type="PostbackType" minOccurs="0" />
-	        <xsd:element name="referral" type="ReferralType" minOccurs="0" />
-	        <xsd:element name="account_linking" type="AccountLinkingType" minOccurs="0" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="SenderType">
-	    <xsd:sequence>
-	        <xsd:element name="id" type="xsd:string" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="RecipientType">
-	    <xsd:sequence>
-	        <xsd:element name="id" type="xsd:string" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="MessageType">
-	    <xsd:sequence>
-	        <xsd:element name="mid" type="xsd:string" />
-	        <xsd:element name="seq" type="xsd:integer" />
-	        <xsd:element name="text" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="quick_reply" type="QuickReplyType" minOccurs="0" />
-	        <xsd:element name="attachments" type="AttachmentType" minOccurs="0" maxOccurs="unbounded" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="QuickReplyType">
-	    <xsd:sequence>
-	        <xsd:element name="payload" type="xsd:string" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="AttachmentType">
-	    <xsd:sequence>
-	        <xsd:element name="type" type="attachmentTypeType" />
-	        <xsd:element name="payload" type="AttachmentPayloadType" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="AttachmentPayloadType">
-	    <xsd:sequence>
-	        <xsd:element name="url" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="coordinates" type="CoordinatesType" minOccurs="0" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="CoordinatesType">
-	    <xsd:sequence>
-	        <xsd:element name="lat" type="xsd:float" />
-	        <xsd:element name="long" type="xsd:float" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="DeliveryType">
-	    <xsd:sequence>
-	        <xsd:element name="mids" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
-	        <xsd:element name="watermark" type="xsd:integer" />
-	        <xsd:element name="seq" type="xsd:integer" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="ReadType">
-	    <xsd:sequence>
-	        <xsd:element name="watermark" type="xsd:integer" />
-	        <xsd:element name="seq" type="xsd:integer" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="PostbackType">
-	    <xsd:sequence>
-	        <xsd:element name="payload" type="xsd:string" />
-	        <xsd:element name="referral" type="ReferralType" minOccurs="0" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="ReferralType">
-	    <xsd:sequence>
-	        <xsd:element name="ref" type="xsd:string" />
-	        <xsd:element name="source" type="xsd:string" />
-	        <xsd:element name="type" type="xsd:string" default="OPEN_THREAD" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="AccountLinkingType">
-	    <xsd:sequence>
-	        <xsd:element name="status" type="linkingStatusType" />
-	        <xsd:element name="authorization_code" type="xsd:string" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:simpleType name="attachmentTypeType">
-	    <xsd:restriction base="xsd:string">
-	        <xsd:enumeration value="image" />
-	        <xsd:enumeration value="video" />
-	        <xsd:enumeration value="audio" />
-	        <xsd:enumeration value="location" />
-	        <xsd:enumeration value="file" />
-	    </xsd:restriction>
-	</xsd:simpleType>
-	
-	<xsd:simpleType name="linkingStatusType">
-	    <xsd:restriction base="xsd:string">
-	        <xsd:enumeration value="linked" />
-	        <xsd:enumeration value="unlinked" />
-	    </xsd:restriction>
-	</xsd:simpleType>
-	
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="urn:com:facebook:data:bot"
+            targetNamespace="urn:com:facebook:data:bot">
+
+    <xsd:element name="Update">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="object" type="xsd:string" default="page" />
+                <xsd:element name="entry" type="EntryType" minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="EntryType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string" />
+            <xsd:element name="time" type="xsd:integer" />
+            <xsd:element name="messaging" type="MessagingType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MessagingType">
+        <xsd:sequence>
+            <xsd:element name="sender" type="SenderType" />
+            <xsd:element name="recipient" type="RecipientType" />
+            <xsd:element name="timestamp" type="xsd:integer" />
+            <xsd:element name="message" type="MessageType" minOccurs="0" />
+            <xsd:element name="delivery" type="DeliveryType" minOccurs="0" />
+            <xsd:element name="read" type="ReadType" minOccurs="0" />
+            <xsd:element name="postback" type="PostbackType" minOccurs="0" />
+            <xsd:element name="referral" type="ReferralType" minOccurs="0" />
+            <xsd:element name="account_linking" type="AccountLinkingType" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="SenderType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="RecipientType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MessageType">
+        <xsd:sequence>
+            <xsd:element name="mid" type="xsd:string" />
+            <xsd:element name="seq" type="xsd:integer" />
+            <xsd:element name="text" type="xsd:string" minOccurs="0" />
+            <xsd:element name="quick_reply" type="QuickReplyType" minOccurs="0" />
+            <xsd:element name="attachments" type="AttachmentType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="QuickReplyType">
+        <xsd:sequence>
+            <xsd:element name="payload" type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AttachmentType">
+        <xsd:sequence>
+            <xsd:element name="type" type="attachmentTypeType" />
+            <xsd:element name="payload" type="AttachmentPayloadType" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AttachmentPayloadType">
+        <xsd:sequence>
+            <xsd:element name="url" type="xsd:string" minOccurs="0" />
+            <xsd:element name="coordinates" type="CoordinatesType" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="CoordinatesType">
+        <xsd:sequence>
+            <xsd:element name="lat" type="xsd:float" />
+            <xsd:element name="long" type="xsd:float" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="DeliveryType">
+        <xsd:sequence>
+            <xsd:element name="mids" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="watermark" type="xsd:integer" />
+            <xsd:element name="seq" type="xsd:integer" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ReadType">
+        <xsd:sequence>
+            <xsd:element name="watermark" type="xsd:integer" />
+            <xsd:element name="seq" type="xsd:integer" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="PostbackType">
+        <xsd:sequence>
+            <xsd:element name="payload" type="xsd:string" />
+            <xsd:element name="referral" type="ReferralType" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ReferralType">
+        <xsd:sequence>
+            <xsd:element name="ref" type="xsd:string" />
+            <xsd:element name="source" type="xsd:string" />
+            <xsd:element name="type" type="xsd:string" default="OPEN_THREAD" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AccountLinkingType">
+        <xsd:sequence>
+            <xsd:element name="status" type="linkingStatusType" />
+            <xsd:element name="authorization_code" type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="attachmentTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="image" />
+            <xsd:enumeration value="video" />
+            <xsd:enumeration value="audio" />
+            <xsd:enumeration value="location" />
+            <xsd:enumeration value="file" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="linkingStatusType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="linked" />
+            <xsd:enumeration value="unlinked" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
 </xsd:schema>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema elementFormDefault="qualified"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="urn:com:servandserv:data:curl"
-	targetNamespace="urn:com:servandserv:data:curl">
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="urn:com:servandserv:data:curl"
+            targetNamespace="urn:com:servandserv:data:curl">
 
     <xsd:element name="Config">
         <xsd:complexType>
@@ -16,7 +16,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:element name="Request">
         <xsd:complexType>
             <xsd:sequence>
@@ -27,7 +27,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:element name="Header">
         <xsd:complexType>
             <xsd:sequence>
@@ -36,7 +36,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:element name="Auth">
         <xsd:complexType>
             <xsd:sequence>
@@ -46,7 +46,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:element name="Cert">
         <xsd:complexType>
             <xsd:sequence>
@@ -57,7 +57,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:element name="Proxy">
         <xsd:complexType>
             <xsd:sequence>
@@ -67,7 +67,7 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
-    
+
     <xsd:simpleType name="methodType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="POST" />
@@ -78,7 +78,7 @@
             <xsd:enumeration value="OPTIONS" />
         </xsd:restriction>
     </xsd:simpleType>
-    
+
     <xsd:simpleType name="authType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="basic" />

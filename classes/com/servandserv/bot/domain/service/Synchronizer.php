@@ -2,18 +2,16 @@
 
 namespace com\servandserv\bot\domain\service;
 
-class Synchronizer
-{
+class Synchronizer {
 
     const TRY_TS = 60;
 
     protected $ms;
 
-    public function __construct( $ms )
-    {
+    public function __construct($ms) {
         $this->ms = $ms;
     }
-    
+
     /**
      * синхронизируем какие то действия
      * для того, чтобы интервал между действиями не был меньше определенного переменной $ms
@@ -29,43 +27,43 @@ class Synchronizer
      * записываем его в файл отметки времени
      * ждем  пока оно настанет если езе не настало
      * снимаем блокировку, завершаем
-     * 
+     *
      */
-    public function next( $unique )
-    {
+    public function next($unique) {
         $tempDir = $this->getTempDir();
-        $lockFile = $tempDir.DIRECTORY_SEPARATOR.$unique.".lock";
-        $tsFile = $tempDir.DIRECTORY_SEPARATOR.$unique.".ts";
-        if ( !is_dir( $tempDir ) ) {
-            mkdir( $tempDir, 0770 );
+        $lockFile = $tempDir . DIRECTORY_SEPARATOR . $unique . ".lock";
+        $tsFile = $tempDir . DIRECTORY_SEPARATOR . $unique . ".ts";
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0770);
         }
-        if( !file_exists( $tsFile ) ) {
-            file_put_contents( $tsFile, 0 );
+        if (!file_exists($tsFile)) {
+            file_put_contents($tsFile, 0);
         }
         $start = time();
-        
+
         //выставляем эксклюзивную блокировку файла
-        $lockfp = fopen( $lockFile, "w" );
+        $lockfp = fopen($lockFile, "w");
         // ждем пока освободится
         $success = FALSE;
-        while( !$success && time() - $start < self::TRY_TS ) {
-            if( flock( $lockfp, LOCK_EX | LOCK_NB ) ) {
+        while (!$success && time() - $start < self::TRY_TS) {
+            if (flock($lockfp, LOCK_EX | LOCK_NB)) {
                 $success = TRUE;
-                $lts = file_get_contents( $tsFile );
-                while( microtime( true ) * 1000 < $this->ms + $lts ) {
+                $lts = file_get_contents($tsFile);
+                while (microtime(true) * 1000 < $this->ms + $lts) {
                     // тормозим пока не откроется окно
                 }
                 //запишем новое время
-                file_put_contents( $tsFile, microtime( true ) * 1000 );
+                file_put_contents($tsFile, microtime(true) * 1000);
                 // снимем блокировку
-                flock( $lockfp, LOCK_UN );
+                flock($lockfp, LOCK_UN);
             }
         }
-        fclose( $lockfp );
+        fclose($lockfp);
         //unlink( $lockFile );
     }
-    
+
     public function getTempDir() {
         return sys_get_temp_dir() . "/Synchronizer-BBBot";
     }
+
 }

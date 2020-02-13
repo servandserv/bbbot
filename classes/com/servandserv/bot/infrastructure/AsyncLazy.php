@@ -24,7 +24,7 @@ namespace com\servandserv\bot\infrastructure;
  *
  * @todo не различить причину ошибки (по аналогии с http 4xx или 5xx) - все ошибки в куче.
  * @see https://josephscott.org/archives/2005/10/fake-fork-in-php/
- * 
+ *
  * @author dab@bystrobank.ru
  */
 class AsyncLazy {
@@ -108,20 +108,18 @@ class AsyncLazy {
      */
     private $executionArgs;
 
-
-    public function __construct( $id = NULL )
-    {
+    public function __construct($id = NULL) {
         $this->phaze = 1;
         $this->id = $id;
     }
 
     private function UUID() {
-        return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0x0fff ) | 0x4000,
-            mt_rand( 0, 0x3fff ) | 0x8000,
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000,
+                mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
         );
     }
 
@@ -129,9 +127,8 @@ class AsyncLazy {
      * Инициализируем переменные экзепляра асинхронного процесса
      * @param string $id идентификатор асинхронного процесса (для новых не указывается)
      */
-    public function init( $id = NULL )
-    {
-        if ( !$id ) {
+    public function init($id = NULL) {
+        if (!$id) {
             $this->phaze = 1;
             //для новых
             // пытаемся использовать идентификатор процесса переданный в конструкторе
@@ -181,7 +178,7 @@ class AsyncLazy {
             //регистрируем обработчик завершения работы скрипта (когда скрипт завершен но работа не сделана)
             register_shutdown_function(array($this, "checkDone"));
         }
-        
+
         return $this;
     }
 
@@ -218,7 +215,7 @@ class AsyncLazy {
     public function fork($args, $duration = 0) {
         // инициализируем окружение
         $this->init();
-        
+
         if ($this->phaze != 1) {
             trigger_error("method allowed only in phaze1");
         }
@@ -503,6 +500,7 @@ class AsyncLazy {
     }
 
 /////////////////////////////////////////////////////
+
     /**
      * Собственно метод который вызывается в асинхронном режиме
      * @param mixed $args переметры переданные при вызове
@@ -673,7 +671,7 @@ class AsyncLazy {
 
 }
 
-set_time_limit(60*10);
+set_time_limit(60 * 10);
 /////////////////////////////////////////////////////
 if ($_SERVER["PHP_SELF"] == __FILE__ && isset($_SERVER["argv"][3])) {
     //var_dump("forked");
@@ -694,7 +692,7 @@ if ($_SERVER["PHP_SELF"] == __FILE__ && isset($_SERVER["argv"][3])) {
     //создаем экземпляр класса с указанным идентификатором
     //$asyncRunnable = new $_SERVER["argv"][2]($_SERVER["argv"][3]);
     $asyncRunnable = new $_SERVER["argv"][2]();
-    $asyncRunnable->init( $_SERVER["argv"][3] );
+    $asyncRunnable->init($_SERVER["argv"][3]);
 
     //запускаем с указанными параметрами
     $asyncRunnable->run($asyncRunnable->getArgs());

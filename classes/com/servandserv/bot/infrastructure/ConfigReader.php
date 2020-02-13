@@ -8,8 +8,7 @@ namespace com\servandserv\bot\infrastructure;
  * ConfigReader::read("web.xml", "context.xml");
  *
  */
-class ConfigReader 
-{
+class ConfigReader {
 
     const unixHome = "HOME";
     const contextDir = ".config";
@@ -22,8 +21,7 @@ class ConfigReader
      * @param string $contextFile необязательный контекстный файл (например экземпляра приложения)
      * @return boolean - true если загружено из кеша
      */
-    public static function load($envFile, $contextFile = null) 
-    {
+    public static function load($envFile, $contextFile = null) {
         //требуется проверить на пустые значения
         $nullcheck = array();
 
@@ -38,8 +36,8 @@ class ConfigReader
 
         //читаем дефолты и глобали
         $xr = new \XMLReader();
-        if(!$xr->open($envFile)) {
-            trigger_error( "web xml file \"$envFile\" not found" );
+        if (!$xr->open($envFile)) {
+            trigger_error("web xml file \"$envFile\" not found");
             exit;
         }
         while ($xr->nodeType != \XMLReader::ELEMENT) {
@@ -101,7 +99,7 @@ class ConfigReader
         //читаем из контекста приложения - возможно их и не потребуется заполнять глобалями
         if ($contextFile) {
             $xr = new \XMLReader();
-            if(!$xr->open($contextFile)) {
+            if (!$xr->open($contextFile)) {
                 trigger_error("context file \"$contextFile\" not found");
                 exit;
             }
@@ -111,17 +109,15 @@ class ConfigReader
             if ($xr->name != "Context") {
                 trigger_error("no <Context> element in '" . $contextFile . "'");
             }
-            if($xr->hasAttributes)
-            {
+            if ($xr->hasAttributes) {
                 $attributes = array();
-                while($xr->moveToNextAttribute())
-                {
-                    if($xr->name == "path" ) {
+                while ($xr->moveToNextAttribute()) {
+                    if ($xr->name == "path") {
                         $_SERVER["config.context"] = $xr->value;
                     }
                 }
             }
-            
+
             while ($xr->read()) {
                 $name = $type = $value = null;
                 if ($xr->nodeType == \XMLReader::ELEMENT && $xr->name == "Environment") {
@@ -173,7 +169,7 @@ class ConfigReader
         //проверим чтобы не было пустых
         foreach ($nullcheck as $name => $fileline) {
             if (empty($_SERVER[$name])) {
-                self::unsetValue( $name );
+                self::unsetValue($name);
                 //error_log("no value for '" . $name . "' declared at " . $fileline);
             }
         }
@@ -240,4 +236,5 @@ class ConfigReader
             unset($_SERVER["REDIRECT_" . $name]);
         }
     }
+
 }

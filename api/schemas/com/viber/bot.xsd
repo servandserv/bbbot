@@ -1,110 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema elementFormDefault="qualified"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="urn:com:viber:data:bot"
-	targetNamespace="urn:com:viber:data:bot">
-	
-	<xsd:element name="Update">
-	    <xsd:complexType>
-	        <xsd:sequence>
-	            <xsd:element name="event" type="eventType" />
-	            <xsd:element name="timestamp" type="xsd:integer" />
-	            <xsd:element name="user_id" type="xsd:string" minOccurs="0" />
-	            <xsd:element name="user" type="UserType" minOccurs="0"/>
-	            <xsd:element name="type" type="xsd:string" minOccurs="0" />
-	            <xsd:element name="context" type="xsd:string" minOccurs="0" />
-	            <xsd:element name="desc" type="xsd:string" minOccurs="0" />
-	            <xsd:element name="message_token" type="xsd:string" />
-	            <xsd:element name="sender" type="SenderType" minOccurs="0" />
-	            <xsd:element name="message" type="MessageType" minOccurs="0" />
-	        </xsd:sequence>
-	    </xsd:complexType>
-	</xsd:element>
-	
-	<xsd:complexType name="UserType">
-	    <xsd:sequence>
-	        <xsd:element name="id" type="xsd:string" />
-	        <xsd:element name="name" type="xsd:string" />
-	        <xsd:element name="avatar" type="xsd:string" />
-	        <xsd:element name="country" type="xsd:string" />
-	        <xsd:element name="language" type="xsd:string" />
-	        <xsd:element name="api_version" type="xsd:string" />
-	        <xsd:element name="primary_device_os" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="viber_version" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="mcc" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="mnc" type="xsd:string" minOccurs="0" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="SenderType">
-	    <xsd:sequence>
-	        <xsd:element name="id" type="xsd:string" />
-	        <xsd:element name="name" type="xsd:string" />
-	        <xsd:element name="avatar" type="xsd:string" minOccurs="0"/>
-	        <xsd:element name="country" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="language" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="api_version" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="primary_device_os" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="viber_version" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="mcc" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="mnc" type="xsd:string" minOccurs="0" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="MessageType">
-	    <xsd:sequence>
-	        <xsd:element name="receiver" type="xsd:string" />
-	        <xsd:element name="type" type="messageTypeType" />
-	        <xsd:element name="text" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="media" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="thumbnail" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="size" type="xsd:integer" minOccurs="0" />
-	        <xsd:element name="file_name" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="duration" type="xsd:integer" minOccurs="0" />
-	        <xsd:element name="location" type="LocationType" minOccurs="0" />
-	        <xsd:element name="contact" type="ContactType" minOccurs="0" />
-	        <xsd:element name="tracking_data" type="xsd:string" minOccurs="0" />
-	        <xsd:element name="min_api_version" type="xsd:string" minOccurs="0" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="LocationType">
-	    <xsd:sequence>
-	        <xsd:element name="lat" type="xsd:float" />
-	        <xsd:element name="lon" type="xsd:float" />
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="ContactType">
-	    <xsd:sequence>
-	        <xsd:element name="username" type="xsd:string" />
-	        <xsd:element name="phone_number" type="xsd:string" />
-	        <xsd:element name="avatar" type="xsd:string" minOccurs="0"/>
-	    </xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:simpleType name="eventType">
-	    <xsd:restriction base="xsd:string">
-	        <xsd:enumeration value="subscribed" />
-	        <xsd:enumeration value="unsubscribed" />
-	        <xsd:enumeration value="conversation_started" />
-	        <xsd:enumeration value="delivered" />
-	        <xsd:enumeration value="seen" />
-	        <xsd:enumeration value="failed" />
-	        <xsd:enumeration value="message" />
-	    </xsd:restriction>
-	</xsd:simpleType>
-	
-	<xsd:simpleType name="messageTypeType">
-	    <xsd:restriction base="xsd:string">
-	        <xsd:enumeration value="text" />
-	        <xsd:enumeration value="picture" />
-	        <xsd:enumeration value="video" />
-	        <xsd:enumeration value="file" />
-	        <xsd:enumeration value="contact" />
-	        <xsd:enumeration value="url" />
-	        <xsd:enumeration value="location" />
-	    </xsd:restriction>
-	</xsd:simpleType>
-	
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="urn:com:viber:data:bot"
+            targetNamespace="urn:com:viber:data:bot">
+
+    <xsd:element name="Update">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="event" type="eventType" />
+                <xsd:element name="timestamp" type="xsd:integer" />
+                <xsd:element name="user_id" type="xsd:string" minOccurs="0" />
+                <xsd:element name="user" type="UserType" minOccurs="0"/>
+                <xsd:element name="type" type="xsd:string" minOccurs="0" />
+                <xsd:element name="context" type="xsd:string" minOccurs="0" />
+                <xsd:element name="desc" type="xsd:string" minOccurs="0" />
+                <xsd:element name="message_token" type="xsd:string" />
+                <xsd:element name="sender" type="SenderType" minOccurs="0" />
+                <xsd:element name="message" type="MessageType" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="UserType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string" />
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="avatar" type="xsd:string" />
+            <xsd:element name="country" type="xsd:string" />
+            <xsd:element name="language" type="xsd:string" />
+            <xsd:element name="api_version" type="xsd:string" />
+            <xsd:element name="primary_device_os" type="xsd:string" minOccurs="0" />
+            <xsd:element name="viber_version" type="xsd:string" minOccurs="0" />
+            <xsd:element name="mcc" type="xsd:string" minOccurs="0" />
+            <xsd:element name="mnc" type="xsd:string" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="SenderType">
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string" />
+            <xsd:element name="name" type="xsd:string" />
+            <xsd:element name="avatar" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="country" type="xsd:string" minOccurs="0" />
+            <xsd:element name="language" type="xsd:string" minOccurs="0" />
+            <xsd:element name="api_version" type="xsd:string" minOccurs="0" />
+            <xsd:element name="primary_device_os" type="xsd:string" minOccurs="0" />
+            <xsd:element name="viber_version" type="xsd:string" minOccurs="0" />
+            <xsd:element name="mcc" type="xsd:string" minOccurs="0" />
+            <xsd:element name="mnc" type="xsd:string" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MessageType">
+        <xsd:sequence>
+            <xsd:element name="receiver" type="xsd:string" />
+            <xsd:element name="type" type="messageTypeType" />
+            <xsd:element name="text" type="xsd:string" minOccurs="0" />
+            <xsd:element name="media" type="xsd:string" minOccurs="0" />
+            <xsd:element name="thumbnail" type="xsd:string" minOccurs="0" />
+            <xsd:element name="size" type="xsd:integer" minOccurs="0" />
+            <xsd:element name="file_name" type="xsd:string" minOccurs="0" />
+            <xsd:element name="duration" type="xsd:integer" minOccurs="0" />
+            <xsd:element name="location" type="LocationType" minOccurs="0" />
+            <xsd:element name="contact" type="ContactType" minOccurs="0" />
+            <xsd:element name="tracking_data" type="xsd:string" minOccurs="0" />
+            <xsd:element name="min_api_version" type="xsd:string" minOccurs="0" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="LocationType">
+        <xsd:sequence>
+            <xsd:element name="lat" type="xsd:float" />
+            <xsd:element name="lon" type="xsd:float" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ContactType">
+        <xsd:sequence>
+            <xsd:element name="username" type="xsd:string" />
+            <xsd:element name="phone_number" type="xsd:string" />
+            <xsd:element name="avatar" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="eventType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="subscribed" />
+            <xsd:enumeration value="unsubscribed" />
+            <xsd:enumeration value="conversation_started" />
+            <xsd:enumeration value="delivered" />
+            <xsd:enumeration value="seen" />
+            <xsd:enumeration value="failed" />
+            <xsd:enumeration value="message" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="messageTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="text" />
+            <xsd:enumeration value="picture" />
+            <xsd:enumeration value="video" />
+            <xsd:enumeration value="file" />
+            <xsd:enumeration value="contact" />
+            <xsd:enumeration value="url" />
+            <xsd:enumeration value="location" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
 </xsd:schema>
