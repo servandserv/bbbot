@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS `nupdates`;
+CREATE TABLE IF NOT EXISTS `nupdates` (
+    `autoid` INT(11) NOT NULL AUTO_INCREMENT,
+    `entityId` VARCHAR(32) NOT NULL,
+    `context` VARCHAR(50) NOT NULL,
+    `update` VARCHAR(65000) NOT NULL,
+    `status` INT UNSIGNED NOT NULL DEFAULT 0,
+    `updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`autoid`)
+    INDEX (`entityId`)
+)
+DEFAULT CHARSET 'utf8mb4' 
+COLLATE 'utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;

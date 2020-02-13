@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS `nevents`;
+CREATE TABLE IF NOT EXISTS `nevents` (
+    `autoid` INT(11) NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(32) NOT NULL,
+    `type` VARCHAR(200) NOT NULL,
+    `occuredOn` VARCHAR(13) NOT NULL,
+    `xmlstr` VARCHAR(65000) NOT NULL,
+    `updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`autoid`),
+    UNIQUE (`id`)
+)
+DEFAULT CHARSET 'utf8mb4' 
+COLLATE 'utf8mb4_unicode_ci'
+ENGINE=InnoDB
+;
