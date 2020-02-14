@@ -21,6 +21,7 @@
             <xsd:sequence>
                 <xsd:element name="id" type="xsd:string" />
                 <xsd:element name="context" type="contextType" />
+                <xsd:element name="IP" type="xsd:string" />
                 <xsd:element name="event" type="updateEventType" />
                 <xsd:element name="status" type="xsd:integer" default="1" />
                 <xsd:element ref="Chat" minOccurs="0" />
@@ -80,6 +81,8 @@
                 <xsd:element name="dt" type="xsd:integer" />
                 <xsd:element name="text" type="xsd:string" minOccurs="0" />
                 <xsd:element name="UID" type="xsd:string" minOccurs="0" />
+                <xsd:element name="outerName" type="xsd:string" minOccurs="0" />
+                <xsd:element name="securityLevel" type="xsd:string" minOccurs="0" />
                 <xsd:element ref="User" minOccurs="0" />
                 <xsd:element ref="Contact" minOccurs="0" />
                 <xsd:element ref="Location" minOccurs="0" />
@@ -125,6 +128,8 @@
                 <xsd:element name="context" type="contextType" />
                 <xsd:element name="type" type="xsd:string" fixed="private" />
                 <xsd:element name="UID" type="xsd:string" minOccurs="0" />
+                <xsd:element name="outerName" type="xsd:string" minOccurs="0" />
+                <xsd:element name="securityLevel" type="xsd:string" minOccurs="0" />
                 <xsd:element name="created" type="xsd:string" minOccurs="0" />
                 <xsd:element ref="User" minOccurs="0" />
                 <xsd:element ref="Location" minOccurs="0" maxOccurs="unbounded" />
@@ -209,6 +214,7 @@
                 <xsd:element name="id" type="xsd:ID" />
                 <xsd:element name="entityId" type="xsd:ID" />
                 <xsd:element name="outerId" type="xsd:ID" minOccurs="0" />
+                <xsd:element name="signature" type="xsd:string" minOccurs="0" />
                 <xsd:element name="json" type="xsd:string" />
                 <xsd:element name="watermark" type="core:timestamp" />
                 <xsd:element name="delivered" type="core:timestamp" minOccurs="0" />
@@ -280,9 +286,21 @@
 
     <xsd:simpleType name="contextType">
         <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="org.telegram" />
-            <xsd:enumeration value="com.facebook" />
-            <xsd:enumeration value="com.viber" />
+            <xsd:enumeration value="org.telegram">
+                <xsd:annotation>
+                    <xsd:appinfo>Telegram</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="com.facebook">
+                <xsd:annotation>
+                    <xsd:appinfo>Facebook</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="com.viber">
+                <xsd:annotation>
+                    <xsd:appinfo>Viber</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 

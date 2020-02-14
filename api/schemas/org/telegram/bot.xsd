@@ -97,6 +97,15 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:complexType name="MessageFileType">
+        <xsd:sequence>
+            <xsd:element name="file_id" type="xsd:string" />
+            <xsd:element name="file_unique_id" type="xsd:string" />
+            <xsd:element name="file_size" type="xsd:integer" />
+            <xsd:element name="file_path" type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
+
     <xsd:complexType name="MessageDocumentType">
         <xsd:sequence>
             <xsd:element name="file_id" type="xsd:string" />
