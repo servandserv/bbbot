@@ -49,7 +49,7 @@ class RegisterUpdates {
                 }
             }
             // публикуем событие регистрации апдейтов. Делаем это один раз сразу по всем апдейтам
-            $this->pubsub->publish(new UpdatesRegisteredEvent($port->getUpdates(), $port::CONTEXT));
+            $this->pubsub->publish(new UpdatesRegisteredEvent($port->getUpdates(), $port->getContext()));
         } catch (\Exception $e) {
             $this->pubsub->publish(new ExceptionOccuredEvent($e));
             //silence

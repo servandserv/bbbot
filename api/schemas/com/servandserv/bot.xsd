@@ -301,6 +301,11 @@
                     <xsd:appinfo>Viber</xsd:appinfo>
                 </xsd:annotation>
             </xsd:enumeration>
+            <xsd:enumeration value="com.viber.bot">
+                <xsd:annotation>
+                    <xsd:appinfo>ViberBot</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 

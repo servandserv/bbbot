@@ -11,6 +11,8 @@ interface BotPort {
      */
     public function getUpdates();
 
+    public function getContext();
+
     public function makeRequest($name, array $args, callable $cb);
 
     public function publishView(View $view, callable $cb);

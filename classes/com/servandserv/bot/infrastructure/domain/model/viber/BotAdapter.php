@@ -26,20 +26,26 @@ use \com\viber\data\bot\UserType;
 
 class BotAdapter implements BotPort {
 
-    const CONTEXT = "com.viber";
+    //const CONTEXT = "com.viber";
 
+    protected $context;
     protected $cli;
     protected $NS;
     protected $token;
     protected $rep;
     protected static $updates;
 
-    public function __construct(CurlClient $cli, $token, $NS, RequestRepository $rep, $uploadDir) {
+    public function __construct(CurlClient $cli, $context, $token, $NS, RequestRepository $rep, $uploadDir) {
+        $this->cli = $cli;
+        $this->context = $context;
         $this->token = $token;
         $this->NS = $NS;
-        $this->cli = $cli;
         $this->rep = $rep;
         $this->uploadDir = $uploadDir;
+    }
+
+    public function getContext() {
+        return $this->context;
     }
 
     public function makeRequest($name, array $args, callable $cb = NULL) {
@@ -100,13 +106,13 @@ class BotAdapter implements BotPort {
     public function getUpdates() {
         if (NULL == self::$updates) {
             $in = file_get_contents("php://input");
-            self::$updates = ( new Updates())->setContext(self::CONTEXT);
+            self::$updates = ( new Updates())->setContext($this->context);
             if (!$json = json_decode($in, TRUE))
                 throw new \Exception("Error on decode update json in " . __FILE__ . " on line " . __LINE__);
             // убрал проверку подписи надо с ней разбираться
             //if( !$this->checkSignature( json_encode( $json ) ) ) return self::$updates;
             $vup = ( new ViberUpdate())->fromJSONArray($json);
-            $up = ( new Update())->setContext(self::CONTEXT)->setId(intval(microtime(true) * 1000))->setRaw($in);
+            $up = ( new Update())->setContext($this->context)->setId(intval(microtime(true) * 1000))->setRaw($in);
             $chat = new Chat();
             switch ($vup->getEvent()) {
                 case "webhook":
@@ -170,7 +176,7 @@ class BotAdapter implements BotPort {
                     $up->setMessage($message);
                     break;
             }
-            $up->setChat($chat->setContext(self::CONTEXT));
+            $up->setChat($chat->setContext($this->context));
             $up->setIP($this->getIP());
             self::$updates->setUpdate($up);
         }

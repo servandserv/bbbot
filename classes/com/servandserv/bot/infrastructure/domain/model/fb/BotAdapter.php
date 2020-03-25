@@ -36,6 +36,10 @@ class BotAdapter implements BotPort {
         $this->rep = $rep;
     }
 
+    public function getContext() {
+        return self::CONTEXT;
+    }
+
     public function makeRequest($name, array $args, callable $cb = NULL) {
         $clName = $this->NS . "\\" . $name;
         if (!class_exists($clName))
@@ -81,7 +85,7 @@ class BotAdapter implements BotPort {
     public function getUpdates() {
         if (NULL == self::$updates) {
             $in = file_get_contents("php://input");
-            self::$updates = ( new Updates())->setContext(self::CONTEXT);
+            self::$updates = ( new Updates())->setContext($this->getContext());
             if (!$json = json_decode($in, TRUE))
                 throw new \Exception("Error on decode update json in " . __FILE__ . " on line " . __LINE__);
             //if( !$this->auth( $json ) ) throw new \Exception( "Invalid X-Hub-Signature header in ".__FILE__." on ".__LINE__ );
@@ -91,13 +95,13 @@ class BotAdapter implements BotPort {
                 $items = $entry->getMessaging();
                 foreach ($items as $item) {
                     $up = ( new Update())
-                            ->setContext(self::CONTEXT)
+                            ->setContext($this->getContext())
                             ->setId(intval(microtime(true) * 1000))
                             ->setRaw($in);
                     $chat = ( new Chat())
                             ->setId($item->getSender()->getId())
                             ->setType("private")
-                            ->setContext(self::CONTEXT);
+                            ->setContext($this->getContext());
                     if ($item->getDelivery()) {
                         $up->setEvent(UpdateEventType::_DELIVERED);
                         $delivery = ( new Delivery())

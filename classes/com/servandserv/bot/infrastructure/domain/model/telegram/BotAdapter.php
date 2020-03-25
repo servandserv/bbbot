@@ -49,6 +49,10 @@ class BotAdapter implements BotPort {
         $this->syn = $syn;
     }
 
+    public function getContext() {
+        return self::CONTEXT;
+    }
+
     public function makeRequest($name, array $args, callable $cb = NULL) {
         $clName = $this->NS . "\\" . $name;
         if (!class_exists($clName))
@@ -68,7 +72,7 @@ class BotAdapter implements BotPort {
                     continue;
 
                 if ($view->isSynchronous()) {
-                    $this->syn->next(self::CONTEXT); // следующая отправка
+                    $this->syn->next($this->getContext()); // следующая отправка
                 }
                 $watermark = intval(microtime(true) * 1000);
                 $resp = $this->cli->request($request);
@@ -107,7 +111,7 @@ class BotAdapter implements BotPort {
 
     public function getUpdates() {
         if (NULL == self::$updates) {
-            self::$updates = ( new Updates())->setContext(self::CONTEXT);
+            self::$updates = ( new Updates())->setContext($this->getContext());
             $in = file_get_contents("php://input");
             if (!$json = json_decode($in, TRUE))
                 throw new \Exception("Error on decode update json in " . __FILE__ . " on line " . __LINE__ . "\n input $in");
@@ -121,8 +125,8 @@ class BotAdapter implements BotPort {
     }
 
     public function translateToUpdate(TelegramUpdate $tup) {
-        $up = ( new Update())->setId($tup->getUpdate_id())->setContext(self::CONTEXT);
-        $up->setChat(( new Chat())->setContext(self::CONTEXT));
+        $up = ( new Update())->setId($tup->getUpdate_id())->setContext($this->getContext());
+        $up->setChat(( new Chat())->setContext($this->getContext()));
         $up->setEvent(UpdateEventType::_RECEIVED);
         $this->fromCallbackQueryType($tup->getCallback_query(), $up);
         // various types of message
@@ -252,7 +256,7 @@ class BotAdapter implements BotPort {
         $resp = $this->cli->request($request);
         if ($json = json_decode($resp->getBody(), TRUE)) {
             if(isset($json["ok"]) && $json["ok"]=="true") {
-                $rl = (new(Link))->setHref();
+                $rl = (new Link())->setHref();
                 return $rl;
             }
             throw new \Exception($json["description"], $json["error_code"]);
